@@ -5,52 +5,47 @@
 @section('content')
 <div class="space-y-6">
 
-    <!-- Top Action Bar & Summary Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-            <div class="flex items-center gap-2">
-                <h2 class="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Payroll Feeder &amp; External Sync Hub</h2>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                    PayFlow MY Connected
-                </span>
-            </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Automated monthly feeder syncing verified work hours, overtime, and unpaid leave deductions.</p>
-        </div>
+    <!-- Standard Page Header Banner -->
+    <x-page-header
+        title="Payroll Feeder & External Sync Hub"
+        subtitle="Automated monthly feeder syncing verified work hours, overtime, and unpaid leave deductions"
+        icon="bx-sync"
+        badge="PayFlow MY Connected"
+        badgeVariant="indigo"
+    >
+        <x-button
+            type="button"
+            variant="secondary"
+            size="md"
+            icon="bx bx-key"
+            onclick="document.getElementById('modal-api-credentials').classList.remove('hidden')"
+            class="bg-white/10 hover:bg-white/20 text-white border-white/20"
+        >
+            API Tokens
+        </x-button>
 
-        <div class="flex items-center gap-2.5 flex-wrap">
-            <x-button
-                type="button"
-                variant="secondary"
-                size="md"
-                icon="bx bx-key"
-                onclick="document.getElementById('modal-api-credentials').classList.remove('hidden')"
-            >
-                API Tokens
-            </x-button>
+        <!-- Month Selector Form -->
+        <form method="GET" action="{{ route('payroll-sync.index') }}" class="inline-block">
+            <input
+                type="month"
+                name="month"
+                value="{{ $month }}"
+                onchange="this.form.submit()"
+                class="h-10 px-3.5 py-2 rounded-xl text-xs font-bold border border-white/20 bg-white/10 text-white placeholder-white/60 outline-none cursor-pointer focus:ring-2 focus:ring-indigo-400 backdrop-blur-sm"
+            />
+        </form>
 
-            <!-- Month Selector Form -->
-            <form method="GET" action="{{ route('payroll-sync.index') }}" class="inline-block">
-                <input
-                    type="month"
-                    name="month"
-                    value="{{ $month }}"
-                    onchange="this.form.submit()"
-                    class="h-10 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500"
-                />
-            </form>
-
-            <x-button
-                type="button"
-                variant="success"
-                size="md"
-                icon="bx bx-download"
-                onclick="document.getElementById('modal-confirm-export-payroll').classList.remove('hidden')"
-                class="shadow-md shadow-emerald-600/20"
-            >
-                Export CSV
-            </x-button>
-        </div>
-    </div>
+        <x-button
+            type="button"
+            variant="success"
+            size="md"
+            icon="bx bx-download"
+            onclick="document.getElementById('modal-confirm-export-payroll').classList.remove('hidden')"
+            class="shadow-md shadow-emerald-600/20"
+        >
+            Export CSV
+        </x-button>
+    </x-page-header>
 
     <!-- Feedback Alerts -->
     @if (session('status'))

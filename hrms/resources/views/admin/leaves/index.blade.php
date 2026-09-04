@@ -5,26 +5,45 @@
 @section('content')
 <div class="space-y-6">
 
-    <!-- Top Action Bar & Summary Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-            <h2 class="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Leave &amp; Time-Off Operations</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Manage statutory Malaysian leave entitlements, multi-tier approvals, and payroll unpaid deduction feeds.</p>
-        </div>
+    <!-- Page Header (matching standard) -->
+    <x-page-header
+        title="Leave & Time-Off Operations"
+        subtitle="Manage statutory Malaysian leave entitlements, multi-tier approvals, and payroll unpaid deduction feeds"
+        icon="bx-calendar-event"
+    >
+        <x-button
+            type="button"
+            variant="secondary"
+            size="md"
+            icon="bx bx-upload"
+            onclick="document.getElementById('modal-import-leaves').classList.remove('hidden')"
+            class="bg-white/10 hover:bg-white/20 text-white border-white/20"
+        >
+            Import CSV
+        </x-button>
 
-        <div class="flex items-center gap-2.5">
-            <x-button
-                type="button"
-                variant="primary"
-                size="md"
-                icon="bx bx-plus"
-                onclick="document.getElementById('modal-apply-leave').classList.remove('hidden')"
-                class="shadow-lg shadow-indigo-600/30"
-            >
-                Submit Leave Application
-            </x-button>
-        </div>
-    </div>
+        <x-button
+            type="button"
+            variant="secondary"
+            size="md"
+            icon="bx bx-download"
+            onclick="document.getElementById('modal-confirm-export-leaves').classList.remove('hidden')"
+            class="bg-white/10 hover:bg-white/20 text-white border-white/20"
+        >
+            Export CSV
+        </x-button>
+
+        <x-button
+            type="button"
+            variant="primary"
+            size="md"
+            icon="bx bx-plus"
+            onclick="document.getElementById('modal-apply-leave').classList.remove('hidden')"
+            class="shadow-lg shadow-indigo-600/30"
+        >
+            Submit Leave Application
+        </x-button>
+    </x-page-header>
 
     <!-- Alert Messages -->
     @if (session('status'))
@@ -365,4 +384,73 @@
         </div>
     </form>
 </x-modal>
+
+<!-- Confirmation Dialog: Export Leave Applications -->
+<x-confirm-dialog
+    name="export-leaves"
+    title="Confirm Leave Roster Export"
+    message="Are you sure you want to export leave records to CSV? The generated file includes applicant details, statutory leave types, total taken days, approver remarks, and approval timestamps."
+    confirmText="Download Leave CSV"
+    cancelText="Cancel"
+    variant="success"
+    icon="bx bx-download text-emerald-600 dark:text-emerald-400"
+/>
+
+<!-- Modal: Import Leave Records CSV with Confirmation -->
+<x-modal name="import-leaves" title="Import Historical Leave Records via CSV" size="lg">
+    <form method="POST" action="{{ route('leaves.import') }}" enctype="multipart/form-data" class="space-y-4 text-xs">
+        @csrf
+
+        <div class="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 space-y-1">
+            <p class="font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                <i class="bx bx-info-circle text-base"></i>
+                <span>CSV Upload Validation &amp; Formatting</span>
+            </p>
+            <p class="text-amber-700 dark:text-amber-400 text-[11px] leading-relaxed">
+                Ensure columns match: <code>Employee Code, Employee Name, Leave Type Code (e.g. AL, SL, HL, ML), Start Date (YYYY-MM-DD), End Date, Total Days, Status, Reason</code>.
+            </p>
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Select CSV Data File <span class="text-rose-500">*</span>
+            </label>
+            <input
+                type="file"
+                name="csv_file"
+                accept=".csv,text/csv,text/plain"
+                required
+                class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-950/60 dark:file:text-indigo-300 cursor-pointer border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-white dark:bg-slate-800"
+            />
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+            <a
+                href="{{ route('leaves.template') }}"
+                class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+            >
+                <i class="bx bx-download text-sm"></i>
+                <span>Download Sample CSV Template</span>
+            </a>
+            <div class="flex items-center gap-2">
+                <x-button type="button" variant="ghost" size="sm" onclick="document.getElementById('modal-import-leaves').classList.add('hidden')">
+                    Cancel
+                </x-button>
+                <x-button type="submit" variant="primary" size="sm" icon="bx bx-upload">
+                    Confirm &amp; Upload CSV
+                </x-button>
+            </div>
+        </div>
+    </form>
+</x-modal>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const exportForm = document.getElementById('modal-confirm-export-leaves-form');
+        if (exportForm) {
+            exportForm.method = 'GET';
+            exportForm.action = "{{ route('leaves.export', ['year' => request('year'), 'leave_type_id' => request('leave_type_id'), 'status' => request('status'), 'search' => request('search')]) }}";
+        }
+    });
+</script>
 @endsection

@@ -23,6 +23,7 @@ class CompanyProfile extends Model
         'default_annual_leave_days',
         'hr_director_name',
         'hr_director_title',
+        'signature_path',
         'contract_terms',
         'offer_letter_subject',
         'offer_letter_intro',

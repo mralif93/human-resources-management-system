@@ -6,44 +6,44 @@
 @section('content')
 <div class="space-y-6 animate__animated animate__fadeIn">
 
-    <!-- Header Actions & Search Bar -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-        <div>
-            <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Active Employee Roster</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Manage workforce lifecycle, employment contracts, and department assignments</p>
-        </div>
-        <div class="flex items-center gap-2.5 flex-wrap">
-            <x-button
-                type="button"
-                variant="secondary"
-                size="md"
-                icon="bx bx-upload"
-                onclick="document.getElementById('modal-import-employees').classList.remove('hidden')"
-            >
-                Import CSV
-            </x-button>
+    <!-- Page Header (matching standard) -->
+    <x-page-header
+        title="Active Employee Roster"
+        subtitle="Manage workforce lifecycle, employment contracts, and department assignments"
+        icon="bx-user-pin"
+    >
+        <x-button
+            type="button"
+            variant="secondary"
+            size="md"
+            icon="bx bx-upload"
+            onclick="document.getElementById('modal-import-employees').classList.remove('hidden')"
+            class="bg-white/10 hover:bg-white/20 text-white border-white/20"
+        >
+            Import CSV
+        </x-button>
 
-            <x-button
-                type="button"
-                variant="secondary"
-                size="md"
-                icon="bx bx-download"
-                onclick="document.getElementById('modal-confirm-export-employees').classList.remove('hidden')"
-            >
-                Export CSV
-            </x-button>
+        <x-button
+            type="button"
+            variant="secondary"
+            size="md"
+            icon="bx bx-download"
+            onclick="document.getElementById('modal-confirm-export-employees').classList.remove('hidden')"
+            class="bg-white/10 hover:bg-white/20 text-white border-white/20"
+        >
+            Export CSV
+        </x-button>
 
-            <x-button
-                variant="primary"
-                size="md"
-                icon="bx bx-user-plus"
-                onclick="document.getElementById('modal-new-employee').classList.remove('hidden')"
-                class="shadow-md shadow-indigo-600/20"
-            >
-                Add Employee
-            </x-button>
-        </div>
-    </div>
+        <x-button
+            variant="primary"
+            size="md"
+            icon="bx bx-user-plus"
+            onclick="document.getElementById('modal-new-employee').classList.remove('hidden')"
+            class="shadow-lg shadow-indigo-600/30"
+        >
+            Add Employee
+        </x-button>
+    </x-page-header>
 
     <!-- Search & Filter Section (Reusable pure Tailwind component) -->
     <x-filter-toolbar
@@ -332,13 +332,22 @@
             />
         </div>
 
-        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
-            <x-button type="button" variant="ghost" size="sm" onclick="document.getElementById('modal-import-employees').classList.add('hidden')">
-                Cancel
-            </x-button>
-            <x-button type="submit" variant="primary" size="sm" icon="bx bx-upload">
-                Confirm &amp; Upload CSV
-            </x-button>
+        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+            <a
+                href="{{ route('employees.template') }}"
+                class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+            >
+                <i class="bx bx-download text-sm"></i>
+                <span>Download Sample CSV Template</span>
+            </a>
+            <div class="flex items-center gap-2">
+                <x-button type="button" variant="ghost" size="sm" onclick="document.getElementById('modal-import-employees').classList.add('hidden')">
+                    Cancel
+                </x-button>
+                <x-button type="submit" variant="primary" size="sm" icon="bx bx-upload">
+                    Confirm &amp; Upload CSV
+                </x-button>
+            </div>
         </div>
     </form>
 </x-modal>

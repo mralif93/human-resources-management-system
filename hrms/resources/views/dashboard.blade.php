@@ -6,6 +6,26 @@
 @section('content')
 <div class="space-y-8 animate__animated animate__fadeIn">
 
+    <!-- Standard Page Header Banner -->
+    <x-page-header
+        title="Workforce Operations & Governance"
+        subtitle="Real-time personnel monitoring, attendance verification, and operational KPI telemetry"
+        icon="bx-grid-alt"
+        badge="Live Telemetry"
+        badgeVariant="emerald"
+    >
+        <x-button
+            type="button"
+            variant="secondary"
+            size="md"
+            icon="bx bx-refresh"
+            onclick="window.location.reload()"
+            class="bg-white/10 hover:bg-white/20 text-white border-white/20"
+        >
+            Refresh Data
+        </x-button>
+    </x-page-header>
+
     <!-- 4 High-Level Metric Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <x-stat-card 

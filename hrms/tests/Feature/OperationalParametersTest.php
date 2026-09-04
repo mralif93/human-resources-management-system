@@ -27,6 +27,7 @@ class OperationalParametersTest extends TestCase
         $this->seed(UserSeeder::class);
         $this->seed(DepartmentAndDesignationSeeder::class);
         $this->seed(LeaveSeeder::class);
+        $this->seed(\Database\Seeders\AttendanceSeeder::class);
 
         $this->adminUser = User::where('email', 'admin@hrms.test')->first();
     }
@@ -63,6 +64,100 @@ class OperationalParametersTest extends TestCase
         $this->assertDatabaseHas('shifts', [
             'code' => 'SFT-NIGHT-02',
             'late_grace_minutes' => 20,
+        ]);
+    }
+
+    public function test_admin_can_update_existing_work_shift(): void
+    {
+        $shift = Shift::first();
+
+        $response = $this->actingAs($this->adminUser)->put(route('settings.shifts.update', $shift), [
+            'name' => 'Updated Core Hours',
+            'code' => 'SFT-CORE-UPDATED',
+            'start_time' => '08:30',
+            'end_time' => '17:30',
+            'late_grace_minutes' => 25,
+            'half_day_threshold_minutes' => 210,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('shifts', [
+            'id' => $shift->id,
+            'name' => 'Updated Core Hours',
+            'code' => 'SFT-CORE-UPDATED',
+            'start_time' => '08:30',
+            'end_time' => '17:30',
+            'late_grace_minutes' => 25,
+        ]);
+    }
+
+    public function test_admin_can_set_default_work_shift(): void
+    {
+        $shift1 = Shift::first();
+        $shift2 = Shift::create([
+            'name' => 'Second Shift',
+            'code' => 'SFT-SECOND',
+            'start_time' => '14:00',
+            'end_time' => '23:00',
+            'late_grace_minutes' => 15,
+            'half_day_threshold_minutes' => 240,
+            'is_default' => false,
+        ]);
+
+        $response = $this->actingAs($this->adminUser)->post(route('settings.shifts.set-default', $shift2));
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('shifts', [
+            'id' => $shift2->id,
+            'is_default' => true,
+        ]);
+        $this->assertDatabaseHas('shifts', [
+            'id' => $shift1->id,
+            'is_default' => false,
+        ]);
+    }
+
+    public function test_admin_can_delete_non_default_work_shift(): void
+    {
+        $shift = Shift::create([
+            'name' => 'Temporary Weekend Shift',
+            'code' => 'SFT-WEEKEND',
+            'start_time' => '10:00',
+            'end_time' => '18:00',
+            'late_grace_minutes' => 15,
+            'half_day_threshold_minutes' => 240,
+            'is_default' => false,
+        ]);
+
+        $response = $this->actingAs($this->adminUser)->delete(route('settings.shifts.destroy', $shift));
+
+        $response->assertRedirect();
+        $this->assertDatabaseMissing('shifts', [
+            'id' => $shift->id,
+        ]);
+    }
+
+    public function test_admin_cannot_delete_primary_default_work_shift(): void
+    {
+        $defaultShift = Shift::where('is_default', true)->first();
+
+        // Create a secondary shift so count > 1
+        Shift::create([
+            'name' => 'Secondary Shift',
+            'code' => 'SFT-SEC-2',
+            'start_time' => '12:00',
+            'end_time' => '20:00',
+            'late_grace_minutes' => 10,
+            'half_day_threshold_minutes' => 240,
+            'is_default' => false,
+        ]);
+
+        $response = $this->actingAs($this->adminUser)->delete(route('settings.shifts.destroy', $defaultShift));
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors('shift_delete');
+        $this->assertDatabaseHas('shifts', [
+            'id' => $defaultShift->id,
         ]);
     }
 

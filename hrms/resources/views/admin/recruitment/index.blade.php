@@ -5,36 +5,56 @@
 @section('content')
 <div class="space-y-6">
 
-    <!-- Top Action Bar & Summary Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-            <h2 class="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Applicant Tracking System (ATS)</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Manage job postings, visual candidate hiring pipelines, and 1-click employee conversions.</p>
-        </div>
+    <!-- Page Header (matching standard) -->
+    <x-page-header
+        title="Applicant Tracking System (ATS)"
+        subtitle="Manage job postings, visual candidate hiring pipelines, and 1-click employee conversions"
+        icon="bx-user-voice"
+    >
+        <x-button
+            type="button"
+            variant="secondary"
+            size="md"
+            icon="bx bx-upload"
+            onclick="document.getElementById('modal-import-applicants').classList.remove('hidden')"
+            class="bg-white/10 hover:bg-white/20 text-white border-white/20"
+        >
+            Import CSV
+        </x-button>
 
-        <div class="flex items-center gap-2.5 flex-wrap">
-            <x-button
-                type="button"
-                variant="secondary"
-                size="md"
-                icon="bx bx-user-plus"
-                onclick="document.getElementById('modal-create-applicant').classList.remove('hidden')"
-            >
-                Add Candidate
-            </x-button>
+        <x-button
+            type="button"
+            variant="secondary"
+            size="md"
+            icon="bx bx-download"
+            onclick="document.getElementById('modal-confirm-export-applicants').classList.remove('hidden')"
+            class="bg-white/10 hover:bg-white/20 text-white border-white/20"
+        >
+            Export CSV
+        </x-button>
 
-            <x-button
-                type="button"
-                variant="primary"
-                size="md"
-                icon="bx bx-briefcase"
-                onclick="document.getElementById('modal-create-job').classList.remove('hidden')"
-                class="shadow-md shadow-indigo-600/20"
-            >
-                Post Job Opening
-            </x-button>
-        </div>
-    </div>
+        <x-button
+            type="button"
+            variant="secondary"
+            size="md"
+            icon="bx bx-user-plus"
+            onclick="document.getElementById('modal-create-applicant').classList.remove('hidden')"
+            class="bg-white/10 hover:bg-white/20 text-white border-white/20"
+        >
+            Add Candidate
+        </x-button>
+
+        <x-button
+            type="button"
+            variant="primary"
+            size="md"
+            icon="bx bx-briefcase"
+            onclick="document.getElementById('modal-create-job').classList.remove('hidden')"
+            class="shadow-lg shadow-indigo-600/30"
+        >
+            Post Job Opening
+        </x-button>
+    </x-page-header>
 
     <!-- Feedback Alerts -->
     @if (session('status'))
@@ -765,7 +785,74 @@
 
         document.getElementById('modal-offer-letter').classList.remove('hidden');
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const exportForm = document.getElementById('modal-confirm-export-applicants-form');
+        if (exportForm) {
+            exportForm.method = 'GET';
+            exportForm.action = "{{ route('recruitment.export', ['job_id' => request('job_id'), 'search' => request('search')]) }}";
+        }
+    });
 </script>
 @endpush
+
+<!-- Confirmation Dialog: Export Recruitment Pipeline -->
+<x-confirm-dialog
+    name="export-applicants"
+    title="Confirm Candidate Pipeline Export"
+    message="Are you sure you want to export candidate applicant records to CSV? The generated file includes contact details, target job positions, pipeline stages, evaluation ratings, and offer salary terms."
+    confirmText="Download Candidate CSV"
+    cancelText="Cancel"
+    variant="success"
+    icon="bx bx-download text-emerald-600 dark:text-emerald-400"
+/>
+
+<!-- Modal: Import Candidate Applicants CSV with Confirmation -->
+<x-modal name="import-applicants" title="Import Candidate Applicants via CSV" size="lg">
+    <form method="POST" action="{{ route('recruitment.import') }}" enctype="multipart/form-data" class="space-y-4 text-xs">
+        @csrf
+
+        <div class="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 space-y-1">
+            <p class="font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                <i class="bx bx-info-circle text-base"></i>
+                <span>CSV Upload Validation &amp; Formatting</span>
+            </p>
+            <p class="text-amber-700 dark:text-amber-400 text-[11px] leading-relaxed">
+                Ensure columns match: <code>First Name, Last Name, Email, Phone, Target Job Title, Current Company, Current Title, Experience Years, Expected Salary, Stage, Rating (1-5)</code>.
+            </p>
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Select CSV Data File <span class="text-rose-500">*</span>
+            </label>
+            <input
+                type="file"
+                name="csv_file"
+                accept=".csv,text/csv,text/plain"
+                required
+                class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-950/60 dark:file:text-indigo-300 cursor-pointer border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-white dark:bg-slate-800"
+            />
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+            <a
+                href="{{ route('recruitment.template') }}"
+                class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+            >
+                <i class="bx bx-download text-sm"></i>
+                <span>Download Sample CSV Template</span>
+            </a>
+            <div class="flex items-center gap-2">
+                <x-button type="button" variant="ghost" size="sm" onclick="document.getElementById('modal-import-applicants').classList.add('hidden')">
+                    Cancel
+                </x-button>
+                <x-button type="submit" variant="primary" size="sm" icon="bx bx-upload">
+                    Confirm &amp; Upload CSV
+                </x-button>
+            </div>
+        </div>
+    </form>
+</x-modal>
 
 @endsection

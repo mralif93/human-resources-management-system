@@ -19,14 +19,14 @@
 
 <div
     id="modal-{{ $name }}"
-    class="hidden fixed inset-0 z-50 overflow-y-auto"
+    class="hidden fixed inset-0 z-[100] overflow-y-auto"
     aria-labelledby="modal-title-{{ $name }}"
     role="dialog"
     aria-modal="true"
 >
-    <!-- Backdrop Blur & Dark Dim with Soft Opacity -->
+    <!-- Full-screen Backdrop Blur & Dark Dim overlaying entire viewport and sidebar -->
     <div
-        class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity"
+        class="fixed inset-0 bg-slate-950/75 backdrop-blur-md transition-opacity"
         onclick="document.getElementById('modal-{{ $name }}').classList.add('hidden')"
     ></div>
 
@@ -52,11 +52,11 @@
                                 </div>
                             @endif
                             <div class="min-w-0 pr-2">
-                                <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight leading-snug truncate" id="modal-title-{{ $name }}">
+                                <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight leading-snug" id="modal-title-{{ $name }}">
                                     {{ $title }}
                                 </h3>
                                 @if($subtitle)
-                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-normal truncate">{{ $subtitle }}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-normal">{{ $subtitle }}</p>
                                 @endif
                             </div>
                         </div>

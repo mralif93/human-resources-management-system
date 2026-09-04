@@ -5,30 +5,36 @@
 @section('content')
 <div class="space-y-6">
 
-    <!-- Top Action Bar & Summary Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-            <div class="flex items-center gap-2">
-                <h2 class="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Enterprise Activity Audit Trail</h2>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                    Immutable Log
-                </span>
-            </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Chronological ledger of security, payroll sync, employee PIM modifications, and administrative decisions.</p>
-        </div>
+    <!-- Standard Page Header Banner -->
+    <x-page-header
+        title="Enterprise Activity Audit Trail"
+        subtitle="Chronological ledger of security, payroll sync, employee PIM modifications, and administrative decisions"
+        icon="bx-history"
+        badge="Immutable Log"
+        badgeVariant="emerald"
+    >
+        <x-button
+            type="button"
+            variant="secondary"
+            size="md"
+            icon="bx bx-download"
+            onclick="document.getElementById('modal-confirm-export-audit-logs').classList.remove('hidden')"
+            class="bg-white/10 hover:bg-white/20 text-white border-white/20"
+        >
+            Export CSV
+        </x-button>
 
-        <div class="flex items-center gap-2">
-            <x-button
-                type="button"
-                variant="secondary"
-                size="md"
-                icon="bx bx-refresh"
-                onclick="window.location.reload()"
-            >
-                Refresh Log
-            </x-button>
-        </div>
-    </div>
+        <x-button
+            type="button"
+            variant="secondary"
+            size="md"
+            icon="bx bx-refresh"
+            onclick="window.location.reload()"
+            class="bg-white/10 hover:bg-white/20 text-white border-white/20"
+        >
+            Refresh Log
+        </x-button>
+    </x-page-header>
 
     <!-- High-Impact KPI Stat Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -245,5 +251,26 @@
     }
 </script>
 @endpush
+
+<!-- Confirmation Dialog: Export Activity Audit Trail -->
+<x-confirm-dialog
+    name="export-audit-logs"
+    title="Confirm Audit Trail Export"
+    message="Are you sure you want to export activity audit trail records to CSV? This compliance dataset contains historical user security authentications, payroll synchronization triggers, and employee record updates."
+    confirmText="Download Audit CSV"
+    cancelText="Cancel"
+    variant="success"
+    icon="bx bx-download text-emerald-600 dark:text-emerald-400"
+/>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const exportForm = document.getElementById('modal-confirm-export-audit-logs-form');
+        if (exportForm) {
+            exportForm.method = 'GET';
+            exportForm.action = "{{ route('audit-logs.export', ['category' => request('category'), 'search' => request('search')]) }}";
+        }
+    });
+</script>
 
 @endsection

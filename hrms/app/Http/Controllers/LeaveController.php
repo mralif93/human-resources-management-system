@@ -193,4 +193,199 @@ class LeaveController extends Controller
 
         return redirect()->route('leaves.index')->with('status', "Leave application #{$leave->id} has been rejected.");
     }
+
+    /**
+     * Export leave applications to CSV.
+     */
+    public function export(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $selectedYear = (int) $request->input('year', date('Y'));
+        $search = $request->input('search');
+        $leaveTypeId = $request->input('leave_type_id');
+        $status = $request->input('status');
+
+        $query = LeaveApplication::with(['employee.department', 'leaveType', 'approver'])
+            ->whereYear('start_date', $selectedYear)
+            ->latest('start_date');
+
+        if ($search) {
+            $query->whereHas('employee', function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('employee_code', 'like', "%{$search}%");
+            });
+        }
+
+        if ($leaveTypeId) {
+            $query->where('leave_type_id', $leaveTypeId);
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $records = $query->get();
+        $fileName = 'leave_applications_' . date('Y_m_d_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        return response()->stream(function () use ($records) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, [
+                'Employee Code',
+                'Employee Name',
+                'Department',
+                'Leave Type',
+                'Leave Type Code',
+                'Start Date',
+                'End Date',
+                'Total Days',
+                'Status',
+                'Reason',
+                'Approver',
+                'Approved At',
+            ]);
+
+            foreach ($records as $item) {
+                fputcsv($file, [
+                    $item->employee?->employee_code,
+                    $item->employee?->full_name,
+                    $item->employee?->department?->name ?? 'Unassigned',
+                    $item->leaveType?->name,
+                    $item->leaveType?->code,
+                    $item->start_date?->toDateString() ?? $item->start_date,
+                    $item->end_date?->toDateString() ?? $item->end_date,
+                    $item->total_days,
+                    $item->status,
+                    $item->reason,
+                    $item->approver?->full_name ?? 'Pending',
+                    $item->approved_at ? Carbon::parse($item->approved_at)->format('Y-m-d H:i:s') : '',
+                ]);
+            }
+
+            fclose($file);
+        }, 200, $headers);
+    }
+
+    /**
+     * Import historical or migrated leave records from CSV.
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:5120',
+        ]);
+
+        $file = $request->file('csv_file');
+        $handle = fopen($file->getRealPath(), 'r');
+        $header = fgetcsv($handle); // skip header row
+
+        $imported = 0;
+        $defaultLeaveType = LeaveType::first();
+
+        while (($row = fgetcsv($handle)) !== false) {
+            if (count($row) < 4 || empty($row[0]) || empty($row[3])) {
+                continue; // Need at least employee_code and start_date
+            }
+
+            $empCode = trim($row[0]);
+            $employee = Employee::where('employee_code', $empCode)->orWhere('email', $empCode)->first();
+            if (!$employee) {
+                continue;
+            }
+
+            // Match leave type by code or name
+            $leaveTypeCode = trim($row[2] ?? '');
+            $leaveType = LeaveType::where('code', $leaveTypeCode)->orWhere('name', $leaveTypeCode)->first() ?? $defaultLeaveType;
+            if (!$leaveType) {
+                continue;
+            }
+
+            $startDate = Carbon::parse(trim($row[3]))->toDateString();
+            $endDate = !empty($row[4]) ? Carbon::parse(trim($row[4]))->toDateString() : $startDate;
+            $totalDays = !empty($row[5]) ? (float) $row[5] : 1.0;
+            $status = !empty($row[6]) ? strtolower(trim($row[6])) : 'approved';
+            if (!in_array($status, ['pending', 'approved', 'rejected', 'cancelled'])) {
+                $status = 'approved';
+            }
+
+            $reason = !empty($row[7]) ? trim($row[7]) : 'Batch Migrated Record';
+
+            LeaveApplication::create([
+                'employee_id' => $employee->id,
+                'leave_type_id' => $leaveType->id,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'total_days' => $totalDays,
+                'status' => $status,
+                'reason' => $reason,
+                'approved_at' => $status === 'approved' ? now() : null,
+            ]);
+
+            $imported++;
+        }
+
+        fclose($handle);
+
+        return redirect()->route('leaves.index')->with('status', "CSV Import complete! {$imported} leave records successfully imported.");
+    }
+
+    /**
+     * Download sample CSV template for leave import.
+     */
+    public function template(): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $fileName = 'sample_leave_template.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        return response()->stream(function () {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, [
+                'Employee Code',
+                'Employee Name',
+                'Leave Type Code',
+                'Start Date',
+                'End Date',
+                'Total Days',
+                'Status',
+                'Reason',
+            ]);
+
+            $firstEmp = Employee::first();
+            $code = $firstEmp?->employee_code ?? 'EMP-2026-0001';
+            $name = $firstEmp?->full_name ?? 'Alexander Vance';
+
+            fputcsv($file, [
+                $code,
+                $name,
+                'AL',
+                date('Y-06-10'),
+                date('Y-06-12'),
+                '3.0',
+                'approved',
+                'Family vacation and rest',
+            ]);
+
+            fputcsv($file, [
+                $code,
+                $name,
+                'SL',
+                date('Y-04-05'),
+                date('Y-04-05'),
+                '1.0',
+                'approved',
+                'Medical checkup and flu',
+            ]);
+
+            fclose($file);
+        }, 200, $headers);
+    }
 }
+

@@ -5,46 +5,44 @@
 @section('content')
 <div class="space-y-6">
 
-    <!-- Top Action Bar & Summary Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-            <h2 class="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Talent Appraisals &amp; OKR Matrix</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Manage 360-degree leadership reviews, quantifiable OKR goal progress, and evaluation ratings.</p>
-        </div>
+    <!-- Page Header (matching standard) -->
+    <x-page-header
+        title="Talent Appraisals & OKR Matrix"
+        subtitle="Manage 360-degree leadership reviews, quantifiable OKR goal progress, and evaluation ratings"
+        icon="bx-target-lock"
+    >
+        <x-button
+            type="button"
+            variant="secondary"
+            size="md"
+            icon="bx bx-plus"
+            onclick="document.getElementById('modal-create-okr').classList.remove('hidden')"
+            class="bg-white/10 hover:bg-white/20 text-white border-white/20"
+        >
+            New OKR Goal
+        </x-button>
 
-        <div class="flex items-center gap-2.5 flex-wrap">
-            <x-button
-                type="button"
-                variant="secondary"
-                size="md"
-                icon="bx bx-target-lock"
-                onclick="document.getElementById('modal-create-okr').classList.remove('hidden')"
-            >
-                New OKR Goal
-            </x-button>
-
-            <!-- Cycle Selector Dropdown -->
-            <form method="GET" action="{{ route('performance.index') }}" class="inline-block">
-                <input type="hidden" name="tab" value="{{ $activeTab }}">
-                <div class="relative">
-                    <select
-                        name="cycle_id"
-                        onchange="this.form.submit()"
-                        class="h-10 pl-3.5 pr-9 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none cursor-pointer appearance-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-2xs"
-                    >
-                        @foreach($cycles as $cycle)
-                            <option value="{{ $cycle->id }}" {{ $activeCycle?->id == $cycle->id ? 'selected' : '' }}>
-                                {{ $cycle->name }} ({{ ucfirst($cycle->status) }})
-                            </option>
-                        @endforeach
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-slate-400 dark:text-slate-500">
-                        <i class="bx bx-chevron-down text-lg"></i>
-                    </div>
+        <!-- Cycle Selector Dropdown -->
+        <form method="GET" action="{{ route('performance.index') }}" class="inline-block">
+            <input type="hidden" name="tab" value="{{ $activeTab }}">
+            <div class="relative">
+                <select
+                    name="cycle_id"
+                    onchange="this.form.submit()"
+                    class="h-10 pl-3.5 pr-9 rounded-xl text-xs font-bold border border-white/20 bg-white/10 text-white outline-none cursor-pointer appearance-none focus:ring-2 focus:ring-white/30 transition-all"
+                >
+                    @foreach($cycles as $cycle)
+                        <option value="{{ $cycle->id }}" class="bg-slate-900 text-white" {{ $activeCycle?->id == $cycle->id ? 'selected' : '' }}>
+                            {{ $cycle->name }} ({{ ucfirst($cycle->status) }})
+                        </option>
+                    @endforeach
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-slate-300">
+                    <i class="bx bx-chevron-down text-lg"></i>
                 </div>
-            </form>
-        </div>
-    </div>
+            </div>
+        </form>
+    </x-page-header>
 
     <!-- Feedback Alerts -->
     @if (session('status'))

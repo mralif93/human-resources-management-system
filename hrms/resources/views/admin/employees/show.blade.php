@@ -17,24 +17,27 @@
         </span>
     </div>
 
-    <!-- Header Profile Card -->
-    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+    <!-- Header Profile Hero Banner -->
+    <div class="bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-900 text-white rounded-3xl border border-indigo-800/40 shadow-xl shadow-indigo-950/40 p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div class="flex items-center gap-5">
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 text-white font-black text-2xl flex items-center justify-center shadow-lg shadow-indigo-600/30 shrink-0">
+            <div class="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md text-white font-black text-2xl flex items-center justify-center border border-white/20 shadow-lg shadow-indigo-900/50 shrink-0">
                 {{ strtoupper(substr($employee->first_name, 0, 1) . substr($employee->last_name, 0, 1)) }}
             </div>
             <div>
-                <div class="flex items-center gap-3">
-                    <h2 class="text-xl font-black text-slate-900 dark:text-white">{{ $employee->full_name }}</h2>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <h2 class="text-xl font-black text-white tracking-tight">{{ $employee->full_name }}</h2>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
                         {{ $employee->employment_status }}
                     </span>
                 </div>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+                <p class="text-xs text-slate-300 mt-1 font-medium">
                     {{ $employee->designation?->title ?? 'Designation Unassigned' }} &bull; {{ $employee->department?->name ?? 'Department Unassigned' }}
                 </p>
-                <p class="text-xs text-slate-400 mt-0.5">
-                    <i class="bx bx-map-pin"></i> {{ $employee->branch_location }} &bull; Joined {{ $employee->joining_date?->format('d M Y') }}
+                <p class="text-xs text-slate-400 mt-0.5 flex items-center gap-1.5">
+                    <i class="bx bx-map-pin text-indigo-400"></i>
+                    <span>{{ $employee->branch_location }}</span>
+                    <span>&bull;</span>
+                    <span>Joined {{ $employee->joining_date?->format('d M Y') }}</span>
                 </p>
             </div>
         </div>
@@ -43,7 +46,7 @@
             <form method="POST" action="{{ route('employees.destroy', $employee) }}" onsubmit="return confirm('Soft-delete this employee?');">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="px-4 py-2.5 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-950/60 border border-rose-200 dark:border-rose-900/40 transition-colors cursor-pointer flex items-center gap-1.5">
+                <button type="submit" class="px-4 py-2.5 rounded-xl text-xs font-bold text-rose-300 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 transition-colors cursor-pointer flex items-center gap-1.5">
                     <i class="bx bx-trash text-sm"></i>
                     <span>Archive Employee</span>
                 </button>

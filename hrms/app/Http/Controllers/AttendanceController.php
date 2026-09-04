@@ -145,4 +145,203 @@ class AttendanceController extends Controller
 
         return back()->with('status', "Clock-out successful at {$now->format('H:i:s')}. Total Hours: {$totalHours} hrs.");
     }
+
+    /**
+     * Export attendance records to CSV.
+     */
+    public function export(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $query = Attendance::with(['employee', 'shift'])->latest('date');
+
+        if ($request->filled('date')) {
+            $query->whereDate('date', $request->input('date'));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        $records = $query->get();
+        $fileName = 'attendance_logs_' . date('Y_m_d_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        return response()->stream(function () use ($records) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, [
+                'Employee Code',
+                'Employee Name',
+                'Date',
+                'Shift',
+                'Clock In',
+                'Clock Out',
+                'Total Hours',
+                'Overtime Hours',
+                'Status',
+                'Late (Minutes)',
+                'Geofence Verified',
+                'Remarks',
+            ]);
+
+            foreach ($records as $att) {
+                fputcsv($file, [
+                    $att->employee?->employee_code,
+                    $att->employee?->full_name,
+                    $att->date?->toDateString() ?? $att->date,
+                    $att->shift?->name ?? 'Standard',
+                    $att->clock_in ? Carbon::parse($att->clock_in)->format('Y-m-d H:i:s') : '',
+                    $att->clock_out ? Carbon::parse($att->clock_out)->format('Y-m-d H:i:s') : '',
+                    $att->total_work_hours,
+                    $att->overtime_hours,
+                    $att->status,
+                    $att->late_minutes,
+                    $att->is_within_geofence ? 'Yes' : 'No',
+                    $att->remarks,
+                ]);
+            }
+
+            fclose($file);
+        }, 200, $headers);
+    }
+
+    /**
+     * Import attendance punch records from CSV.
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:5120',
+        ]);
+
+        $file = $request->file('csv_file');
+        $handle = fopen($file->getRealPath(), 'r');
+        $header = fgetcsv($handle); // skip header row
+
+        $imported = 0;
+        $defaultShift = Shift::first();
+
+        while (($row = fgetcsv($handle)) !== false) {
+            if (count($row) < 3 || empty($row[0]) || empty($row[2])) {
+                continue; // Need at least employee_code and date
+            }
+
+            $empCode = trim($row[0]);
+            $employee = Employee::where('employee_code', $empCode)->orWhere('email', $empCode)->first();
+            if (!$employee) {
+                continue;
+            }
+
+            $date = trim($row[2]);
+            $clockIn = !empty($row[4]) ? Carbon::parse(trim($row[4])) : null;
+            $clockOut = !empty($row[5]) ? Carbon::parse(trim($row[5])) : null;
+            $status = !empty($row[8]) ? strtolower(trim($row[8])) : 'on_time';
+            if (!in_array($status, ['on_time', 'late', 'half_day', 'absent', 'on_leave'])) {
+                $status = 'on_time';
+            }
+
+            $totalHours = !empty($row[6]) ? (float) $row[6] : 0.0;
+            if ($totalHours <= 0 && $clockIn && $clockOut) {
+                $totalHours = round($clockIn->diffInMinutes($clockOut) / 60, 2);
+            }
+
+            $lateMinutes = !empty($row[9]) ? (int) $row[9] : 0;
+            $remarks = !empty($row[11]) ? trim($row[11]) : 'CSV Batch Import';
+
+            Attendance::updateOrCreate(
+                [
+                    'employee_id' => $employee->id,
+                    'date' => $date,
+                ],
+                [
+                    'shift_id' => $defaultShift?->id,
+                    'clock_in' => $clockIn,
+                    'clock_out' => $clockOut,
+                    'total_work_hours' => $totalHours,
+                    'overtime_hours' => max(0, $totalHours - 8.0),
+                    'status' => $status,
+                    'is_late' => $lateMinutes > 0,
+                    'late_minutes' => $lateMinutes,
+                    'is_within_geofence' => true,
+                    'remarks' => $remarks,
+                ]
+            );
+
+            $imported++;
+        }
+
+        fclose($handle);
+
+        return redirect()->route('attendance.index')->with('status', "CSV Import complete! {$imported} attendance records successfully processed.");
+    }
+
+    /**
+     * Download sample CSV template for attendance import.
+     */
+    public function template(): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $fileName = 'sample_attendance_template.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        return response()->stream(function () {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, [
+                'Employee Code',
+                'Employee Name',
+                'Date',
+                'Shift',
+                'Clock In',
+                'Clock Out',
+                'Total Hours',
+                'Overtime Hours',
+                'Status',
+                'Late Minutes',
+                'Geofence Verified',
+                'Remarks',
+            ]);
+
+            $firstEmp = Employee::first();
+            $code = $firstEmp?->employee_code ?? 'EMP-2026-0001';
+            $name = $firstEmp?->full_name ?? 'Alexander Vance';
+
+            fputcsv($file, [
+                $code,
+                $name,
+                date('Y-m-d'),
+                'Standard Shift',
+                date('Y-m-d') . ' 08:55:00',
+                date('Y-m-d') . ' 18:05:00',
+                '8.50',
+                '0.50',
+                'on_time',
+                '0',
+                'Yes',
+                'Biometric Punch In',
+            ]);
+
+            fputcsv($file, [
+                $code,
+                $name,
+                date('Y-m-d', strtotime('-1 day')),
+                'Standard Shift',
+                date('Y-m-d', strtotime('-1 day')) . ' 09:25:00',
+                date('Y-m-d', strtotime('-1 day')) . ' 18:00:00',
+                '8.00',
+                '0.00',
+                'late',
+                '25',
+                'Yes',
+                'Traffic congestion note',
+            ]);
+
+            fclose($file);
+        }, 200, $headers);
+    }
 }
+

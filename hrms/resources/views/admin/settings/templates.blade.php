@@ -5,51 +5,41 @@
 @section('content')
 <div class="space-y-6">
 
-    <!-- Page Header (matching clinic-invoice-system standard) -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-900 p-6 sm:p-7 border border-indigo-800/40 shadow-xl shadow-indigo-950/40 text-white">
-        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="space-y-1">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-indigo-300 font-bold border border-white/10">
-                        <i class="bx bx-file-blank text-lg"></i>
-                    </div>
-                    <h1 class="text-xl sm:text-2xl font-black tracking-tight">Employment Offer Letter Design Template</h1>
-                </div>
-                <p class="text-xs text-slate-300">Live preview of official A4 formal letter of employment generated identically for sample and candidate offers</p>
-            </div>
+    <!-- Page Header (matching standard) -->
+    <x-page-header
+        title="Employment Offer Letter Design Template"
+        subtitle="Live preview of official A4 formal letter of employment generated identically for sample and candidate offers"
+        icon="bx-file-blank"
+    >
+        <x-button
+            type="button"
+            variant="primary"
+            size="sm"
+            icon="bx bx-slider-alt"
+            onclick="document.getElementById('modal-edit-template').classList.remove('hidden')"
+            class="shadow-lg shadow-indigo-600/30"
+        >
+            Customize Master Template
+        </x-button>
 
-            <div class="flex items-center gap-2.5 flex-wrap">
-                <x-button
-                    type="button"
-                    variant="primary"
-                    size="sm"
-                    icon="bx bx-slider-alt"
-                    onclick="document.getElementById('modal-edit-template').classList.remove('hidden')"
-                    class="shadow-lg shadow-indigo-600/30"
-                >
-                    Customize Master Template
-                </x-button>
+        <a
+            href="{{ route('settings.profile') }}"
+            class="h-9 px-3.5 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition inline-flex items-center gap-1.5"
+        >
+            <i class="bx bx-cog text-sm"></i>
+            <span>Profile Defaults</span>
+        </a>
 
-                <a
-                    href="{{ route('settings.profile') }}"
-                    class="h-9 px-3.5 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition inline-flex items-center gap-1.5"
-                >
-                    <i class="bx bx-cog text-sm"></i>
-                    <span>Profile Defaults</span>
-                </a>
-
-                <x-button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    icon="bx bx-printer"
-                    onclick="window.print()"
-                >
-                    Print Template
-                </x-button>
-            </div>
-        </div>
-    </div>
+        <x-button
+            type="button"
+            variant="secondary"
+            size="sm"
+            icon="bx bx-printer"
+            onclick="window.print()"
+        >
+            Print Template
+        </x-button>
+    </x-page-header>
 
     <!-- Feedback Alerts -->
     @if(session('status'))
@@ -312,9 +302,19 @@
                         <div class="space-y-2.5">
                             <p class="font-bold text-slate-900">Signed on behalf of Company:</p>
                             <div class="h-14 flex items-end">
-                                <span class="font-serif italic text-lg text-indigo-950 font-bold border-b border-slate-400 pb-1 w-48">
-                                    {{ $profile->hr_director_name }}
-                                </span>
+                                @if($profile->signature_path)
+                                    <div class="border-b border-slate-400 pb-1 w-48 flex items-center">
+                                        <img
+                                            src="{{ asset('storage/' . $profile->signature_path) }}"
+                                            alt="{{ $profile->hr_director_name }}"
+                                            class="max-h-12 max-w-full object-contain filter contrast-125"
+                                        />
+                                    </div>
+                                @else
+                                    <span class="font-serif italic text-lg text-indigo-950 font-bold border-b border-slate-400 pb-1 w-48">
+                                        {{ $profile->hr_director_name }}
+                                    </span>
+                                @endif
                             </div>
                             <div>
                                 <p class="font-bold text-slate-900">{{ $profile->hr_director_name }}</p>

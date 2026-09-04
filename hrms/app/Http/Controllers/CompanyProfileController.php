@@ -16,7 +16,18 @@ class CompanyProfileController extends Controller
     public function edit(): View
     {
         $profile = CompanyProfile::current();
-        return view('admin.settings.profile', compact('profile'));
+        $totalEmployees = \App\Models\Employee::count();
+        $totalDepartments = \App\Models\Department::where('is_active', true)->count();
+        $totalShifts = \App\Models\Shift::count();
+        $geofenceRadius = $profile->geofence_radius_meters ?? 100;
+
+        return view('admin.settings.profile', compact(
+            'profile',
+            'totalEmployees',
+            'totalDepartments',
+            'totalShifts',
+            'geofenceRadius'
+        ));
     }
 
     /**
@@ -37,10 +48,32 @@ class CompanyProfileController extends Controller
             'default_annual_leave_days' => 'required|integer|min:0|max:60',
             'hr_director_name' => 'required|string|max:150',
             'hr_director_title' => 'required|string|max:150',
+            'signature_image' => 'nullable|image|mimes:png,jpg,jpeg,webp,svg|max:2048',
+            'remove_signature' => 'nullable|boolean',
             'contract_terms' => 'nullable|string|max:2000',
+            'office_latitude' => 'nullable|numeric|between:-90,90',
+            'office_longitude' => 'nullable|numeric|between:-180,180',
+            'geofence_radius_meters' => 'nullable|integer|min:10|max:5000',
         ]);
 
         $profile = CompanyProfile::current();
+
+        // Handle signature image upload or removal
+        if ($request->boolean('remove_signature')) {
+            if ($profile->signature_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($profile->signature_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($profile->signature_path);
+            }
+            $validated['signature_path'] = null;
+        } elseif ($request->hasFile('signature_image')) {
+            if ($profile->signature_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($profile->signature_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($profile->signature_path);
+            }
+            $path = $request->file('signature_image')->store('signatures', 'public');
+            $validated['signature_path'] = $path;
+        }
+
+        unset($validated['signature_image'], $validated['remove_signature']);
+
         $profile->update($validated);
 
         AuditLog::record(

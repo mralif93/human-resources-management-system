@@ -64,6 +64,59 @@ class CompanyProfileSettingsTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_upload_and_remove_signature_image(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $file = \Illuminate\Http\UploadedFile::fake()->image('signature.png', 300, 100);
+
+        $response = $this->actingAs($this->adminUser)->put(route('settings.profile.update'), [
+            'company_name' => 'PulseHR Signature Test Corp',
+            'registration_number' => '123456-A',
+            'phone' => '+60 3-1111 2222',
+            'email' => 'hr@pulsehr.my',
+            'address' => 'Signature Avenue, Cyberjaya',
+            'currency_symbol' => 'MYR',
+            'default_probation_months' => 3,
+            'default_notice_period_months' => 2,
+            'default_annual_leave_days' => 14,
+            'hr_director_name' => 'Michael Scott',
+            'hr_director_title' => 'Regional Director',
+            'signature_image' => $file,
+        ]);
+
+        $response->assertRedirect(route('settings.profile'));
+
+        $profile = CompanyProfile::current();
+        $this->assertNotNull($profile->signature_path);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($profile->signature_path);
+
+        // Test template displays the uploaded signature
+        $templateResponse = $this->actingAs($this->adminUser)->get(route('settings.templates'));
+        $templateResponse->assertStatus(200);
+        $templateResponse->assertSee('storage/' . $profile->signature_path, false);
+
+        // Test removing the signature
+        $removeResponse = $this->actingAs($this->adminUser)->put(route('settings.profile.update'), [
+            'company_name' => 'PulseHR Signature Test Corp',
+            'registration_number' => '123456-A',
+            'phone' => '+60 3-1111 2222',
+            'email' => 'hr@pulsehr.my',
+            'address' => 'Signature Avenue, Cyberjaya',
+            'currency_symbol' => 'MYR',
+            'default_probation_months' => 3,
+            'default_notice_period_months' => 2,
+            'default_annual_leave_days' => 14,
+            'hr_director_name' => 'Michael Scott',
+            'hr_director_title' => 'Regional Director',
+            'remove_signature' => 1,
+        ]);
+
+        $removeResponse->assertRedirect(route('settings.profile'));
+        $profile->refresh();
+        $this->assertNull($profile->signature_path);
+    }
+
     public function test_authenticated_admin_can_view_offer_letter_template_preview(): void
     {
         $response = $this->actingAs($this->adminUser)->get(route('settings.templates'));

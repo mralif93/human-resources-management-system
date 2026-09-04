@@ -189,4 +189,66 @@ class EmployeeController extends Controller
 
         return redirect()->route('employees.index')->with('status', "CSV Import complete! {$imported} employee records successfully imported.");
     }
+
+    /**
+     * Download sample CSV template for employee import.
+     */
+    public function template(): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $fileName = 'sample_employees_template.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        return response()->stream(function () {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, [
+                'Employee Code',
+                'First Name',
+                'Last Name',
+                'Email',
+                'Phone',
+                'Department',
+                'Designation',
+                'Status',
+                'Joining Date',
+                'Location',
+                'Basic Salary',
+            ]);
+
+            // Sample demonstration rows
+            fputcsv($file, [
+                'EMP-2026-9001',
+                'Nurul',
+                'Huda',
+                'nurul.huda@example.com',
+                '+60 12-345 6789',
+                'Engineering & Technology',
+                'Software Engineer',
+                'Permanent',
+                '2026-01-15',
+                'Level 28, Menara PulseHR, Kuala Lumpur',
+                '6500.00',
+            ]);
+
+            fputcsv($file, [
+                'EMP-2026-9002',
+                'Tan',
+                'Wei Lun',
+                'weilun.tan@example.com',
+                '+60 17-987 6543',
+                'Human Resources',
+                'Talent Acquisition Specialist',
+                'Probation',
+                '2026-03-01',
+                'Level 28, Menara PulseHR, Kuala Lumpur',
+                '5200.00',
+            ]);
+
+            fclose($file);
+        }, 200, $headers);
+    }
 }
+

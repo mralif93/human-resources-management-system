@@ -6,25 +6,23 @@
 @section('content')
 <div class="space-y-6 animate__animated animate__fadeIn">
 
-    <!-- Top Action Header Banner (matching PIM & ATS standard) -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-        <div>
-            <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Leave Entitlements &amp; Policy Registry</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Configure statutory allowances under Employment Act 1955, paid remuneration flags, and policy lifecycle status</p>
-        </div>
-        <div class="flex items-center gap-2.5 flex-wrap">
-            <x-button
-                type="button"
-                variant="primary"
-                size="md"
-                icon="bx bx-plus"
-                onclick="document.getElementById('modal-new-leavetype').classList.remove('hidden')"
-                class="shadow-md shadow-indigo-600/20"
-            >
-                Add Leave Policy
-            </x-button>
-        </div>
-    </div>
+    <!-- Page Header (matching standard) -->
+    <x-page-header
+        title="Leave Entitlements & Policy Registry"
+        subtitle="Configure statutory allowances under Employment Act 1955, paid remuneration flags, and policy lifecycle status"
+        icon="bx-calendar-edit"
+    >
+        <x-button
+            type="button"
+            variant="primary"
+            size="md"
+            icon="bx bx-plus"
+            onclick="document.getElementById('modal-new-leavetype').classList.remove('hidden')"
+            class="shadow-lg shadow-indigo-600/30"
+        >
+            Add Leave Policy
+        </x-button>
+    </x-page-header>
 
     <!-- KPI Metric Cards Grid (Standard 4 Cards) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

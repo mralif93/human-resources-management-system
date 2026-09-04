@@ -182,4 +182,197 @@ class RecruitmentController extends Controller
 
         return view('admin.recruitment.offer-letter', compact('applicant', 'companyProfile'));
     }
+
+    /**
+     * Export recruitment candidate roster to CSV.
+     */
+    public function export(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $selectedJobId = $request->input('job_id');
+        $search = $request->input('search');
+
+        $query = JobApplicant::with(['jobOpening.department', 'employee'])
+            ->when($selectedJobId, fn($q) => $q->where('job_opening_id', $selectedJobId))
+            ->latest('id');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('current_company', 'like', "%{$search}%");
+            });
+        }
+
+        $records = $query->get();
+        $fileName = 'recruitment_candidates_' . date('Y_m_d_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        return response()->stream(function () use ($records) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, [
+                'First Name',
+                'Last Name',
+                'Email',
+                'Phone',
+                'Target Job Title',
+                'Current Company',
+                'Current Title',
+                'Experience (Years)',
+                'Expected Salary',
+                'Stage',
+                'Rating',
+                'Offered Salary',
+                'Joining Date',
+            ]);
+
+            foreach ($records as $cand) {
+                fputcsv($file, [
+                    $cand->first_name,
+                    $cand->last_name,
+                    $cand->email,
+                    $cand->phone,
+                    $cand->jobOpening?->title ?? 'General Pool',
+                    $cand->current_company,
+                    $cand->current_title,
+                    $cand->experience_years,
+                    $cand->expected_salary ? number_format((float) $cand->expected_salary, 2, '.', '') : '',
+                    $cand->stage,
+                    $cand->rating,
+                    $cand->offered_salary ? number_format((float) $cand->offered_salary, 2, '.', '') : '',
+                    $cand->joining_date?->toDateString(),
+                ]);
+            }
+
+            fclose($file);
+        }, 200, $headers);
+    }
+
+    /**
+     * Import candidate applicants from CSV.
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:5120',
+        ]);
+
+        $file = $request->file('csv_file');
+        $handle = fopen($file->getRealPath(), 'r');
+        $header = fgetcsv($handle); // skip header row
+
+        $imported = 0;
+        $defaultJob = JobOpening::first();
+
+        while (($row = fgetcsv($handle)) !== false) {
+            if (count($row) < 3 || empty($row[2])) {
+                continue; // Need email
+            }
+
+            $email = trim($row[2]);
+            if (JobApplicant::where('email', $email)->exists()) {
+                continue;
+            }
+
+            // Match job opening by title or fallback to default
+            $jobTitle = trim($row[4] ?? '');
+            $job = JobOpening::where('title', 'like', "%{$jobTitle}%")->first() ?? $defaultJob;
+            if (!$job) {
+                continue;
+            }
+
+            $stage = !empty($row[9]) ? strtolower(trim($row[9])) : 'applied';
+            if (!in_array($stage, ['applied', 'screened', 'interview', 'offer', 'hired', 'rejected'])) {
+                $stage = 'applied';
+            }
+
+            JobApplicant::create([
+                'job_opening_id' => $job->id,
+                'first_name' => trim($row[0] ?? 'Candidate'),
+                'last_name' => trim($row[1] ?? 'Applicant'),
+                'email' => $email,
+                'phone' => trim($row[3] ?? '+60 12-000 0000'),
+                'current_company' => trim($row[5] ?? ''),
+                'current_title' => trim($row[6] ?? ''),
+                'experience_years' => !empty($row[7]) ? (float) $row[7] : 1.0,
+                'expected_salary' => !empty($row[8]) ? (float) $row[8] : 5000.00,
+                'stage' => $stage,
+                'rating' => !empty($row[10]) ? min(5, max(1, (int) $row[10])) : 4,
+            ]);
+
+            $imported++;
+        }
+
+        fclose($handle);
+
+        return redirect()->route('recruitment.index')->with('status', "CSV Import complete! {$imported} candidate applicants successfully added.");
+    }
+
+    /**
+     * Download sample CSV template for candidate import.
+     */
+    public function template(): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $fileName = 'sample_candidate_template.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        return response()->stream(function () {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, [
+                'First Name',
+                'Last Name',
+                'Email',
+                'Phone',
+                'Target Job Title',
+                'Current Company',
+                'Current Title',
+                'Experience Years',
+                'Expected Salary',
+                'Stage',
+                'Rating',
+            ]);
+
+            $firstJob = JobOpening::first();
+            $jobTitle = $firstJob?->title ?? 'Senior Software Engineer';
+
+            fputcsv($file, [
+                'Ahmad',
+                'Farhan',
+                'farhan.ahmad@example.com',
+                '+60 12-987 6543',
+                $jobTitle,
+                'Tech Innovators Sdn Bhd',
+                'Full Stack Developer',
+                '4.5',
+                '7500.00',
+                'applied',
+                '5',
+            ]);
+
+            fputcsv($file, [
+                'Siti',
+                'Nurhaliza',
+                'siti.nur@example.com',
+                '+60 19-876 5432',
+                $jobTitle,
+                'Digital Solution Asia',
+                'UI/UX Specialist',
+                '3.0',
+                '6200.00',
+                'screened',
+                '4',
+            ]);
+
+            fclose($file);
+        }, 200, $headers);
+    }
 }
+

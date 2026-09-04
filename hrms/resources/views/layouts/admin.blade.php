@@ -32,7 +32,7 @@
     <div id="sidebar-backdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-40 lg:hidden hidden transition-opacity duration-300"></div>
 
     <!-- SIDEBAR NAVIGATION (Standard PayFlow MY / CIS Style) -->
-    <aside id="admin-sidebar" class="fixed lg:static inset-y-0 left-0 -translate-x-full lg:translate-x-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col shrink-0 z-50 transition-transform duration-300 ease-in-out">
+    <aside id="admin-sidebar" class="fixed lg:static inset-y-0 left-0 -translate-x-full lg:translate-x-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col shrink-0 z-40 lg:z-auto transition-transform duration-300 ease-in-out">
         
         <!-- Sidebar Brand Logo & Mobile Close Button -->
         <div class="h-16 sm:h-20 flex items-center justify-between px-5 border-b border-slate-100 dark:border-slate-800/80">
@@ -161,8 +161,8 @@
                     <span>Company Profile</span>
                 </a>
                 <a href="{{ route('settings.shifts') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition {{ request()->routeIs('settings.shifts*') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white' }}">
-                    <i class="bx bx-map-pin text-lg {{ request()->routeIs('settings.shifts*') ? 'text-white' : 'text-slate-400' }}"></i>
-                    <span>Shifts &amp; Geofence</span>
+                    <i class="bx bx-time-five text-lg {{ request()->routeIs('settings.shifts*') ? 'text-white' : 'text-slate-400' }}"></i>
+                    <span>Work Shifts</span>
                 </a>
                 <a href="{{ route('settings.leave-types') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition {{ request()->routeIs('settings.leave-types*') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white' }}">
                     <i class="bx bx-calendar-edit text-lg {{ request()->routeIs('settings.leave-types*') ? 'text-white' : 'text-slate-400' }}"></i>
@@ -313,6 +313,9 @@
             </footer>
         </main>
     </div>
+
+    <!-- Global Modal Portal Insertion Slot -->
+    @stack('modals')
 
     @stack('scripts')
 

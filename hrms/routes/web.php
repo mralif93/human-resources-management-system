@@ -33,14 +33,21 @@ Route::middleware('auth')->group(function () {
     // Module 2: Personnel Information Management (PIM)
     Route::get('/employees/export', [\App\Http\Controllers\EmployeeController::class, 'export'])->name('employees.export');
     Route::post('/employees/import', [\App\Http\Controllers\EmployeeController::class, 'import'])->name('employees.import');
+    Route::get('/employees/template', [\App\Http\Controllers\EmployeeController::class, 'template'])->name('employees.template');
     Route::resource('employees', \App\Http\Controllers\EmployeeController::class)->only(['index', 'store', 'show', 'destroy']);
 
     // Module 3: Attendance & Shifts Tracking
+    Route::get('/attendance/export', [\App\Http\Controllers\AttendanceController::class, 'export'])->name('attendance.export');
+    Route::post('/attendance/import', [\App\Http\Controllers\AttendanceController::class, 'import'])->name('attendance.import');
+    Route::get('/attendance/template', [\App\Http\Controllers\AttendanceController::class, 'template'])->name('attendance.template');
     Route::get('/attendance', [\App\Http\Controllers\AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('/attendance/punch-in', [\App\Http\Controllers\AttendanceController::class, 'punchIn'])->name('attendance.punch-in');
     Route::post('/attendance/punch-out', [\App\Http\Controllers\AttendanceController::class, 'punchOut'])->name('attendance.punch-out');
 
     // Module 4: Leave & Absence Management
+    Route::get('/leaves/export', [\App\Http\Controllers\LeaveController::class, 'export'])->name('leaves.export');
+    Route::post('/leaves/import', [\App\Http\Controllers\LeaveController::class, 'import'])->name('leaves.import');
+    Route::get('/leaves/template', [\App\Http\Controllers\LeaveController::class, 'template'])->name('leaves.template');
     Route::get('/leaves', [\App\Http\Controllers\LeaveController::class, 'index'])->name('leaves.index');
     Route::post('/leaves', [\App\Http\Controllers\LeaveController::class, 'store'])->name('leaves.store');
     Route::post('/leaves/{leave}/approve', [\App\Http\Controllers\LeaveController::class, 'approve'])->name('leaves.approve');
@@ -53,6 +60,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/performance/okrs/{okr}/progress', [\App\Http\Controllers\PerformanceController::class, 'updateOkrProgress'])->name('performance.okrs.progress');
 
     // Module 6: Recruitment & Applicant Tracking (ATS)
+    Route::get('/recruitment/export', [\App\Http\Controllers\RecruitmentController::class, 'export'])->name('recruitment.export');
+    Route::post('/recruitment/import', [\App\Http\Controllers\RecruitmentController::class, 'import'])->name('recruitment.import');
+    Route::get('/recruitment/template', [\App\Http\Controllers\RecruitmentController::class, 'template'])->name('recruitment.template');
     Route::get('/recruitment', [\App\Http\Controllers\RecruitmentController::class, 'index'])->name('recruitment.index');
     Route::post('/recruitment/jobs', [\App\Http\Controllers\RecruitmentController::class, 'storeJob'])->name('recruitment.jobs.store');
     Route::post('/recruitment/applicants', [\App\Http\Controllers\RecruitmentController::class, 'storeApplicant'])->name('recruitment.applicants.store');
@@ -68,6 +78,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/payroll-sync/tokens/{token}/toggle', [\App\Http\Controllers\PayrollSyncController::class, 'toggleToken'])->name('payroll-sync.tokens.toggle');
 
     // Module 8: Activity Audit Trail & Enterprise Security
+    Route::get('/audit-logs/export', [\App\Http\Controllers\AuditLogController::class, 'export'])->name('audit-logs.export');
     Route::get('/audit-logs', [\App\Http\Controllers\AuditLogController::class, 'index'])->name('audit-logs.index');
 
     // Organization & Settings (matching clinic-invoice-system standard)
@@ -80,6 +91,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings/shifts', [\App\Http\Controllers\ShiftGeofenceController::class, 'index'])->name('settings.shifts');
     Route::put('/settings/shifts/geofence', [\App\Http\Controllers\ShiftGeofenceController::class, 'updateGeofence'])->name('settings.shifts.geofence');
     Route::post('/settings/shifts', [\App\Http\Controllers\ShiftGeofenceController::class, 'storeShift'])->name('settings.shifts.store');
+    Route::put('/settings/shifts/{shift}', [\App\Http\Controllers\ShiftGeofenceController::class, 'updateShift'])->name('settings.shifts.update');
+    Route::delete('/settings/shifts/{shift}', [\App\Http\Controllers\ShiftGeofenceController::class, 'destroyShift'])->name('settings.shifts.destroy');
+    Route::post('/settings/shifts/{shift}/set-default', [\App\Http\Controllers\ShiftGeofenceController::class, 'setDefault'])->name('settings.shifts.set-default');
 
     Route::get('/settings/leave-types', [\App\Http\Controllers\LeavePolicyController::class, 'index'])->name('settings.leave-types');
     Route::put('/settings/leave-types/{leaveType}', [\App\Http\Controllers\LeavePolicyController::class, 'update'])->name('settings.leave-types.update');

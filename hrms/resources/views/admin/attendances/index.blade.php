@@ -6,29 +6,41 @@
 @section('content')
 <div class="space-y-6 animate__animated animate__fadeIn">
 
-    <!-- Top Status / Geofence Banner -->
-    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 rounded-3xl p-6 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div class="space-y-1.5">
-            <div class="flex items-center gap-2">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Geofence Perimeter Active
-                </span>
-                <span class="text-xs font-mono text-slate-400">HQ Radius: 100 meters</span>
-            </div>
-            <h2 class="text-lg font-black tracking-tight">Real-Time Attendance &amp; Shift Operations</h2>
-            <p class="text-xs text-slate-300 max-w-xl">
-                Precision GPS tracking with biometric integration, automatic late penalty detection, and daily work hour calculation for export to PayFlow MY.
-            </p>
-        </div>
+    <!-- Page Header (matching standard) -->
+    <x-page-header
+        title="Real-Time Attendance & Shift Operations"
+        subtitle="Precision GPS tracking with biometric integration, automatic late penalty detection, and daily work hour calculation for export to PayFlow MY"
+        icon="bx-time"
+        badge="Geofence Perimeter Active &bull; 100m"
+        badgeVariant="emerald"
+    >
+        <x-button
+            type="button"
+            variant="secondary"
+            size="md"
+            icon="bx bx-upload"
+            onclick="document.getElementById('modal-import-attendance').classList.remove('hidden')"
+            class="bg-white/10 hover:bg-white/20 text-white border-white/20"
+        >
+            Import CSV
+        </x-button>
 
-        <div class="flex items-center gap-3">
-            <div class="bg-white/10 backdrop-blur-xs px-4 py-2.5 rounded-2xl border border-white/10 text-center">
-                <span class="text-[10px] uppercase font-bold text-indigo-200 block">Default Shift</span>
-                <span class="text-xs font-black font-mono">09:00 - 18:00 (15m Grace)</span>
-            </div>
+        <x-button
+            type="button"
+            variant="secondary"
+            size="md"
+            icon="bx bx-download"
+            onclick="document.getElementById('modal-confirm-export-attendance').classList.remove('hidden')"
+            class="bg-white/10 hover:bg-white/20 text-white border-white/20"
+        >
+            Export CSV
+        </x-button>
+
+        <div class="bg-white/10 backdrop-blur-xs px-4 py-2 rounded-2xl border border-white/10 text-center hidden xl:block">
+            <span class="text-[10px] uppercase font-bold text-indigo-200 block">Default Shift</span>
+            <span class="text-xs font-black font-mono">09:00 - 18:00 (15m Grace)</span>
         </div>
-    </div>
+    </x-page-header>
 
     <!-- Punch Action Widget & Filters -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -165,4 +177,73 @@
         </div>
     </div>
 </div>
+
+<!-- Confirmation Dialog: Export Attendance Records -->
+<x-confirm-dialog
+    name="export-attendance"
+    title="Confirm Attendance Export"
+    message="Are you sure you want to export attendance logs to CSV? The generated file includes daily clock-in/out stamps, total work hours, overtime, late arrival calculations, and GPS geofence verifications."
+    confirmText="Download Attendance CSV"
+    cancelText="Cancel"
+    variant="success"
+    icon="bx bx-download text-emerald-600 dark:text-emerald-400"
+/>
+
+<!-- Modal: Import Attendance CSV with Confirmation -->
+<x-modal name="import-attendance" title="Import Attendance Records via CSV" size="lg">
+    <form method="POST" action="{{ route('attendance.import') }}" enctype="multipart/form-data" class="space-y-4 text-xs">
+        @csrf
+
+        <div class="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 space-y-1">
+            <p class="font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                <i class="bx bx-info-circle text-base"></i>
+                <span>CSV Upload Validation &amp; Formatting</span>
+            </p>
+            <p class="text-amber-700 dark:text-amber-400 text-[11px] leading-relaxed">
+                Ensure the file includes columns: <code>Employee Code, Employee Name, Date (YYYY-MM-DD), Shift, Clock In, Clock Out, Total Hours, Overtime Hours, Status, Late Minutes</code>. Existing punches for the date will be updated.
+            </p>
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Select CSV Data File <span class="text-rose-500">*</span>
+            </label>
+            <input
+                type="file"
+                name="csv_file"
+                accept=".csv,text/csv,text/plain"
+                required
+                class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-950/60 dark:file:text-indigo-300 cursor-pointer border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-white dark:bg-slate-800"
+            />
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+            <a
+                href="{{ route('attendance.template') }}"
+                class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+            >
+                <i class="bx bx-download text-sm"></i>
+                <span>Download Sample CSV Template</span>
+            </a>
+            <div class="flex items-center gap-2">
+                <x-button type="button" variant="ghost" size="sm" onclick="document.getElementById('modal-import-attendance').classList.add('hidden')">
+                    Cancel
+                </x-button>
+                <x-button type="submit" variant="primary" size="sm" icon="bx bx-upload">
+                    Confirm &amp; Upload CSV
+                </x-button>
+            </div>
+        </div>
+    </form>
+</x-modal>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const exportForm = document.getElementById('modal-confirm-export-attendance-form');
+        if (exportForm) {
+            exportForm.method = 'GET';
+            exportForm.action = "{{ route('attendance.export', ['date' => request('date'), 'status' => request('status')]) }}";
+        }
+    });
+</script>
 @endsection
