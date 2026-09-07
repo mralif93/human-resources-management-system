@@ -74,7 +74,8 @@
                 </a>
             </div>
 
-            <!-- Group 2: Workforce Lifecycle & PIM -->
+            <!-- Group 2: Workforce Lifecycle & PIM (Super Admin, HR Admin, Department Manager) -->
+            @if(auth()->user()->isSuperAdmin() || auth()->user()->isHrAdmin() || auth()->user()->isManager())
             <div class="space-y-1">
                 <div class="px-3 pb-1 text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold">
                     Personnel Management
@@ -96,6 +97,20 @@
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 </a>
             </div>
+            @else
+            <div class="space-y-1">
+                <div class="px-3 pb-1 text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold">
+                    My Operations
+                </div>
+                <a href="{{ route('attendance.index') }}" class="flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold transition {{ request()->routeIs('attendance.*') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white' }}">
+                    <div class="flex items-center gap-3">
+                        <i class="bx bx-time-five text-lg {{ request()->routeIs('attendance.*') ? 'text-white' : 'text-emerald-500' }}"></i>
+                        <span>My Attendance</span>
+                    </div>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                </a>
+            </div>
+            @endif
 
             <!-- Group 3: Leave, Appraisals & ATS -->
             <div class="space-y-1">
@@ -115,6 +130,7 @@
                     <i class="bx bx-target-lock text-lg {{ request()->routeIs('performance.*') ? 'text-white' : 'text-purple-500' }}"></i>
                     <span>OKRs &amp; Appraisals</span>
                 </a>
+                @if(auth()->user()->isSuperAdmin() || auth()->user()->isHrAdmin() || auth()->user()->isManager())
                 <a href="{{ route('recruitment.index') }}" class="flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold transition {{ request()->routeIs('recruitment.*') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white' }}">
                     <div class="flex items-center gap-3">
                         <i class="bx bx-briefcase text-lg {{ request()->routeIs('recruitment.*') ? 'text-white' : 'text-sky-500' }}"></i>
@@ -124,9 +140,11 @@
                         Active
                     </span>
                 </a>
+                @endif
             </div>
 
-            <!-- Group 4: Integrations & External Feeder -->
+            <!-- Group 4: Integrations & External Feeder (Super Admin & HR Admin) -->
+            @if(auth()->user()->isSuperAdmin() || auth()->user()->isHrAdmin())
             <div class="space-y-1">
                 <div class="px-3 pb-1 text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold">
                     Connected Engines
@@ -150,8 +168,10 @@
                     </span>
                 </a>
             </div>
+            @endif
 
-            <!-- Group 5: Organization & Settings (matching clinic-invoice-system) -->
+            <!-- Group 5: Organization & Settings (Super Admin & HR Admin) -->
+            @if(auth()->user()->isSuperAdmin() || auth()->user()->isHrAdmin())
             <div class="space-y-1">
                 <div class="px-3 pb-1 text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold">
                     Settings &amp; Branding
@@ -177,6 +197,7 @@
                     <span>Offer Letter Template</span>
                 </a>
             </div>
+            @endif
 
         </div>
 
