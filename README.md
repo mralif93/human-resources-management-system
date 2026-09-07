@@ -28,11 +28,17 @@ Includes interactive client-side sandboxes for:
 
 ## 📋 System Overview & Architecture
 
-**PulseHR** is an enterprise-grade Human Resource Management System engineered with Laravel 12, Tailwind CSS, and Alpine.js. It centralizes employee records, geofenced attendance tracking, multi-tiered leave approvals, quarterly OKRs, and recruitment tracking.
+**PulseHR** is an enterprise-grade Human Resource Management System engineered with Laravel 12, Tailwind CSS, and Alpine.js. It centralizes employee records, geofenced attendance tracking, multi-tiered leave approvals, quarterly OKRs, and recruitment tracking, fully integrated with the **CentraFlow Central Identity & SSO Hub**.
 
 ```text
 +-----------------------------------------------------------------------------------+
-|                                 PulseHR Enterprise                                |
+|                            CentraFlow SSO Hub (:8004)                             |
+|              OAuth 2.0 Authorization Server / Master User Registry                |
++-----------------------------------------+-----------------------------------------+
+                                          | OAuth 2.0 Auth Code Grant & SLO
+                                          v
++-----------------------------------------------------------------------------------+
+|                             PulseHR Enterprise (:8001)                            |
 |                                                                                   |
 |  [PIM Master Vault]  <--->  [Geofenced Attendance]  <--->  [Leave & Absence Engine] |
 |          |                           |                             |              |
@@ -51,7 +57,9 @@ Includes interactive client-side sandboxes for:
 ```
 
 > [!NOTE]
-> **Decoupled Payroll Architecture**: In accordance with enterprise microservice and clean segregation principles, all statutory tax computations, EPF/SOCSO/PCB deduction rules, and batch disbursement files are handled by the dedicated external system: **[payroll-management-system (PayFlow MY)](https://github.com/mralif93/payroll-management-system)**. PulseHR serves as the verified primary data source for attendance hours, overtime, and unpaid leave days.
+> **Decoupled Architecture**:
+> 1. **Central Identity Provider**: User authentication, role provisioning, and session governance are managed via **[CentraFlow](http://localhost:8004)** using OAuth 2.0 Authorization Code Grant and Centralized Single Sign-Out (SLO).
+> 2. **External Payroll System**: Statutory tax computations, EPF/SOCSO/PCB deduction rules, and batch disbursement files are handled by the dedicated external system: **[payroll-management-system (PayFlow MY)](https://github.com/mralif93/payroll-management-system)**. PulseHR serves as the verified primary data source for attendance hours, overtime, and unpaid leave days.
 
 ---
 
@@ -59,7 +67,7 @@ Includes interactive client-side sandboxes for:
 
 | # | Module | Key Features & Capabilities |
 |---|---|---|
-| **01** | **Authentication & Security** | TOTP 2FA for Admin/HR, 30-min idle timeout, Spatie Activity Log audit trail. |
+| **01** | **Authentication & Central SSO** | SSO-only authentication backed by **CentraFlow** (OAuth 2.0 Authorization Code Grant), automated role mapping, Central Single Sign-Out (SLO), and activity audit trail. |
 | **02** | **Personnel Information (PIM)** | Unique auto-generated ID (`EMP-YYYY-XXXX`), AES-256 encrypted documents, visual department org tree. |
 | **03** | **Attendance & Shifts** | HTML5 Geolocation validation (100m radius), rotational shifts, grace periods, OT multiplier. |
 | **04** | **Leave & Absence** | Pro-rated accrual engine, multi-level routing (Manager &rarr; HR), blackout overlap guard. |
@@ -98,24 +106,31 @@ npm install
 cp .env.example .env
 php artisan key:generate
 
+# CentraFlow SSO Configuration (in .env)
+# CENTRAFLOW_HOST=http://localhost:8004
+# CENTRAFLOW_CLIENT_ID=9d12a101-0001-4000-8000-000000000001
+# CENTRAFLOW_CLIENT_SECRET=hrms_secret_centraflow_2026
+# CENTRAFLOW_REDIRECT_URI=http://localhost:8001/auth/callback
+# CENTRAFLOW_SCOPES="hrms:read hrms:write"
+
 # 4. Database migrations & seeders
 php artisan migrate --seed
 
 # 5. Build frontend assets & run dev server
 npm run dev
-php artisan serve
+php artisan serve --port=8001
 ```
 
-Default demo accounts:
-- **Super Admin:** `admin@hrms.test` / `password`
-- **HR Admin:** `hr@hrms.test` / `password`
-- **Department Manager:** `manager@hrms.test` / `password`
-- **Employee:** `employee@hrms.test` / `password`
+Authentication is centrally governed via **CentraFlow SSO** (`http://localhost:8004`). Pre-registered demo credentials on CentraFlow:
+- **HR Manager:** `hrmanager@centraflow.local` / `password` (maps to HR Administrator)
+- **Super Administrator:** `admin@centraflow.local` / `password` (maps to Super Admin)
+- **Staff Employee:** `john.doe@centraflow.local` / `password` (maps to Employee)
 
 ---
 
 ## 📄 Documentation & Specifications
 - 📘 [System Requirements Specification (SRS)](docs/system-requirements-specification.md)
 - 🧪 [Software Test Plan (STP)](docs/software-test-plan.md)
+- 🔐 [Sub-System Authentication Integration Manual (SSO & SLO)](docs/subsystem-auth-guide.md)
 - 🌐 [GitHub Pages Landing Page (`docs/index.html`)](docs/index.html)
 - 🔗 [External Decoupled Payroll System](https://github.com/mralif93/payroll-management-system)

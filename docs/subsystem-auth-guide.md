@@ -271,9 +271,37 @@ Add the "Sign in with CentraFlow" button in the login view of each sub-system (e
 
 ---
 
-## 6. Global Session Management & Token Revocation
+## 6. Centralized Single Sign-Out (SLO) & Session Governance
 
-When an administrator revokes access:
-- **Central Token Revocation**: Go to CentraFlow (`http://localhost:8004/admin/id-management`) and click **"Revoke Access"** for any client token.
-- **Session Termination**: Terminating a session in CentraFlow's Active Sessions table marks the session dead immediately.
-- **Sub-system Verification**: Sub-systems can optionally verify token validity at any time by calling `GET http://localhost:8004/api/v1/me` using the stored bearer token.
+When a user logs out of a sub-system (such as HRMS), it triggers a unified Central Single Sign-Out flow so that both the local sub-system session and the central CentraFlow identity provider session are cleared concurrently:
+
+### SLO Workflow
+1. User clicks **"Sign Out Console"** in the sub-system.
+2. Sub-system destroys local user session, clears remember cookies, and regenerates CSRF token.
+3. Sub-system initiates a redirect to CentraFlow:
+   ```
+   GET http://localhost:8004/logout?redirect_uri=http://localhost:8001/login?logged_out=1
+   ```
+4. CentraFlow invalidates the central session, expires the master web session cookie, and redirects the browser back to `redirect_uri`.
+5. The sub-system displays a secure dismissible alert confirming:
+   > *"You have been logged out securely."*
+
+```
++---------------+               +-----------------+
+|   Sub-System  | 1. Logout Req |   CentraFlow    |
+| (HRMS / Pay)  | ------------> | (Hub / Port 8004|
+|               |               |                 |
+| Clears Local  | 2. Redirect   | Terminates      |
+| Session       |   away        | Central Session |
+|               | ------------> |                 |
+|               | <------------ |                 |
+| Displays      | 3. Redirect   +-----------------+
+| Secure Alert  |    Back (?logged_out=1)
++---------------+
+```
+
+### Localhost Session Isolation Best Practice
+When running multiple Laravel applications simultaneously on `localhost` (e.g. `:8001`, `:8002`, `:8004`), ensure each project defines a distinct `SESSION_COOKIE` name in `.env` to prevent browser session token collisions:
+- **HRMS (`:8001`)**: `SESSION_COOKIE=pulsehr_session`
+- **Payroll (`:8002`)**: `SESSION_COOKIE=payflow_session`
+- **CentraFlow (`:8004`)**: `SESSION_COOKIE=centraflow_session`

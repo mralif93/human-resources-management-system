@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends(auth()->check() ? 'layouts.admin' : 'layouts.public')
 
 @section('title', '403 Forbidden - Access Restricted')
 @section('page-title', 'Security & Access Governance')

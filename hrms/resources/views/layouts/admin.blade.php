@@ -75,7 +75,7 @@
             </div>
 
             <!-- Group 2: Workforce Lifecycle & PIM (Super Admin, HR Admin, Department Manager) -->
-            @if(auth()->user()->isSuperAdmin() || auth()->user()->isHrAdmin() || auth()->user()->isManager())
+            @if(auth()->user()?->isSuperAdmin() || auth()->user()?->isHrAdmin() || auth()->user()?->isManager())
             <div class="space-y-1">
                 <div class="px-3 pb-1 text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold">
                     Personnel Management
@@ -144,7 +144,7 @@
             </div>
 
             <!-- Group 4: Integrations & External Feeder (Super Admin & HR Admin) -->
-            @if(auth()->user()->isSuperAdmin() || auth()->user()->isHrAdmin())
+            @if(auth()->user()?->isSuperAdmin() || auth()->user()?->isHrAdmin())
             <div class="space-y-1">
                 <div class="px-3 pb-1 text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold">
                     Connected Engines
@@ -171,7 +171,7 @@
             @endif
 
             <!-- Group 5: Organization & Settings (Super Admin & HR Admin) -->
-            @if(auth()->user()->isSuperAdmin() || auth()->user()->isHrAdmin())
+            @if(auth()->user()?->isSuperAdmin() || auth()->user()?->isHrAdmin())
             <div class="space-y-1">
                 <div class="px-3 pb-1 text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold">
                     Settings &amp; Branding

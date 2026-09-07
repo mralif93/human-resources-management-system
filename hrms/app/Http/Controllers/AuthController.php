@@ -74,6 +74,10 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('welcome')->with('status', 'You have been successfully signed out.');
+        // Central Single Sign-Out (SLO): Terminate CentraFlow session and return to HRMS login
+        $centraflowHost = rtrim(config('services.centraflow.host', env('CENTRAFLOW_HOST', 'http://localhost:8004')), '/');
+        $returnUrl = url('/login?logged_out=1');
+
+        return redirect()->away($centraflowHost . '/logout?redirect_uri=' . urlencode($returnUrl));
     }
 }

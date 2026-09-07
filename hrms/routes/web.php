@@ -14,13 +14,11 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
-// Guest Authentication Routes (using public layout)
+// Guest Authentication Routes (CentraFlow SSO Only)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-
-    Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
-    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
+    Route::get('/auth/centraflow', [\App\Http\Controllers\CentraFlowSsoClientController::class, 'redirect'])->name('sso.login');
+    Route::get('/auth/callback', [\App\Http\Controllers\CentraFlowSsoClientController::class, 'callback'])->name('sso.callback');
 });
 
 // Authenticated Routes (using admin layout)

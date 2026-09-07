@@ -53,8 +53,8 @@ The system enforces strict Role-Based Access Control (RBAC):
 
 ### 3.1 Module 1: Authentication, Security & Onboarding
 
-- **REQ-AUTH-01 (MFA & SSO):** Users can log in using email/password with mandatory Time-based One-Time Password (TOTP) 2FA for HR and Super Admins. Optional Google Workspace / Microsoft Entra ID SSO.
-- **REQ-AUTH-02 (Session Security):** Idle session timeout after 30 minutes of inactivity; concurrent session control.
+- **REQ-AUTH-01 (Central SSO & Identity Hub):** Authentication is governed centrally by **CentraFlow** (`:8004`) via standard OAuth 2.0 Authorization Code Grant (`/oauth/authorize`, `/oauth/token`). Local password forms are deprecated in favor of unified Single Sign-On (SSO) and Centralized Single Sign-Out (SLO) with automated role synchronization (`Super Admin`, `HR Administrator`, `Department Manager`, `Employee`).
+- **REQ-AUTH-02 (Session Security & Isolation):** Idle session timeout after 30 minutes of inactivity; isolated `SESSION_COOKIE` (`pulsehr_session`) to prevent localhost session bleeding across federated sub-systems.
 - **REQ-AUTH-03 (Audit Trail):** Immutable activity log recording `user_id`, `ip_address`, `action`, `model_type`, `old_values`, and `new_values` using `spatie/laravel-activitylog`.
 - **REQ-AUTH-04 (Self-Service Profile):** Employees can update emergency contacts, marital status, and profile photos subject to HR approval before changes apply.
 
