@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full scroll-smooth">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PulseHR - Enterprise Human Resource Management Suite</title>
+    <meta name="description" content="Precision Workforce Governance, Geofenced Attendance, Leave Engine, Performance OKRs, Recruitment ATS & Standalone Payroll Integration.">
+
+    <!-- Theme Initialization to prevent FOUC -->
+    <script>
+        if (localStorage.getItem('pulsehr_theme') === 'dark' || (!('pulsehr_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Boxicons & Animate.css -->
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <!-- Tailwind CSS CDN with configuration -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#EEF2FF',
+                            100: '#E0E7FF',
+                            200: '#C7D2FE',
+                            300: '#A5B4FC',
+                            400: '#818CF8',
+                            500: '#6366F1',
+                            600: '#4F46E5',
+                            700: '#4338CA',
+                            800: '#3730A3',
+                            900: '#312E81',
+                            950: '#1E1B4B',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        }
+        .glow-radial {
+            background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.18) 0%, rgba(30, 27, 75, 0.04) 50%, transparent 80%);
+        }
+        .dark .glow-radial {
+            background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.22) 0%, rgba(15, 23, 42, 0.05) 50%, transparent 80%);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.3);
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased selection:bg-indigo-600 selection:text-white min-h-screen flex flex-col justify-between relative overflow-x-hidden transition-colors duration-300">
+
+    <!-- Background Decorative Glow -->
+    <div class="absolute inset-0 glow-radial pointer-events-none -z-10"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] bg-gradient-to-tr from-indigo-500/15 via-purple-500/10 to-indigo-700/15 blur-[130px] rounded-full pointer-events-none -z-10"></div>
+
+    <!-- Navigation Header -->
+    <header class="w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md sticky top-0 z-50 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2">
+            <!-- Brand Logo -->
+            <a href="#overview" class="flex items-center gap-2.5 sm:gap-3.5 group min-w-0">
+                <div class="h-9 w-9 sm:h-11 sm:w-11 rounded-xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-800 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30 border border-indigo-400/30 group-hover:scale-105 transition-transform shrink-0">
+                    <i class="bx bxs-user-badge text-xl sm:text-2xl font-bold"></i>
+                </div>
+                <div class="min-w-0">
+                    <span class="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 dark:from-white via-indigo-950 dark:via-indigo-100 to-indigo-600 dark:to-indigo-300 bg-clip-text text-transparent truncate block">
+                        Pulse<span class="text-indigo-600 dark:text-indigo-400">HR</span>
+                    </span>
+                    <span class="hidden sm:inline-block px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 rounded-full border border-indigo-200 dark:border-indigo-400/30">
+                        Human Resource Suite
+                    </span>
+                </div>
+            </a>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center gap-7 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                <a href="#overview" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Overview</a>
+                <a href="#sandbox" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1.5">
+                    <span>Live Sandbox</span>
+                    <span class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border border-indigo-400/30">Interactive</span>
+                </a>
+                <a href="#modules" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">HR Modules</a>
+                <a href="#payroll-feeder" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1.5">
+                    <span>Payroll Feeder</span>
+                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-400/30">Sync</span>
+                </a>
+                <a href="#rbac" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">RBAC Matrix</a>
+                <a href="#architecture" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Architecture</a>
+            </nav>
+
+            <!-- Header Quick Actions -->
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                <!-- Theme Toggle Button -->
+                <button
+                    id="theme-toggle-btn"
+                    onclick="toggleTheme()"
+                    type="button"
+                    class="p-2 sm:p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 transition shadow-xs flex items-center justify-center cursor-pointer"
+                    title="Toggle Dark / Light Mode"
+                    aria-label="Toggle Dark / Light Mode"
+                >
+                    <i id="theme-icon" class="bx bx-moon text-lg sm:text-xl"></i>
+                </button>
+
+                <!-- GitHub Repo Button -->
+                <a
+                    href="https://github.com/mralif93/human-resources-management-system"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 shadow-sm transition-all"
+                >
+                    <i class="bx bxl-github text-base sm:text-lg"></i>
+                    <span class="hidden sm:inline">GitHub Code</span>
+                    <span class="sm:hidden">GitHub</span>
+                </a>
+
+                <!-- Mobile Menu Button -->
+                <button
+                    type="button"
+                    onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
+                    class="md:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                    aria-label="Toggle navigation menu"
+                >
+                    <i class="bx bx-menu text-2xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-4 space-y-2 text-xs font-bold shadow-lg animate__animated animate__fadeIn">
+            <a href="#overview" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Overview</a>
+            <a href="#sandbox" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Interactive Sandbox</a>
+            <a href="#modules" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Core HR Modules</a>
+            <a href="#payroll-feeder" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">External Payroll Sync</a>
+            <a href="#rbac" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">RBAC Security Matrix</a>
+            <a href="#architecture" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">System Architecture</a>
+            <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex gap-2">
+                <a href="https://github.com/mralif93/human-resources-management-system" target="_blank" class="w-full text-center py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs">
+                    View on GitHub
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Landing Page Content -->
+    <main class="flex-1">
+        
+        <!-- SECTION 1: HERO BANNER -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16 lg:pt-14 lg:pb-20" id="overview">
+            
+            <!-- Signature Deep Indigo Executive Hero Banner -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-900 p-8 sm:p-12 lg:p-14 shadow-2xl shadow-indigo-950/40 border border-indigo-800/40 text-white">
+                <!-- Background Decorative Glow Elements -->
+                <div class="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute right-1/3 -bottom-24 w-64 h-64 bg-purple-500/15 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-16 bottom-0 w-48 h-48 bg-indigo-600/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                    
+                    <!-- Left: Hero Headline & Value Proposition -->
+                    <div class="lg:col-span-7 space-y-6">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <div class="w-9 h-9 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-indigo-300 font-bold text-lg shadow-xs border border-white/10">
+                                <i class="bx bx-pulse"></i>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 inline-flex items-center gap-1.5 backdrop-blur-xs">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                Live Production Ready
+                            </span>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                                SRS Compliant
+                            </span>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-400/30">
+                                Payroll Decoupled
+                            </span>
+                        </div>
+
+                        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.18]">
+                            Precision Workforce Governance &amp; HR Operations
+                        </h1>
+
+                        <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl font-normal">
+                            An enterprise-grade Human Resource Management System built on Laravel 12 &amp; Tailwind CSS. Features centralized employee lifecycle records, geofenced GPS clock-ins, multi-tiered leave approvals, quarterly OKRs, recruitment ATS Kanban, and seamless data feed sync with <a href="https://github.com/mralif93/payroll-management-system" target="_blank" class="text-indigo-400 font-semibold underline underline-offset-2 hover:text-indigo-300">PayFlow MY</a>.
+                        </p>
+
+                        <div class="flex flex-wrap items-center gap-3.5 pt-2">
+                            <a href="#sandbox" class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl font-bold text-sm bg-indigo-600 hover:bg-indigo-500 text-white shadow-xl shadow-indigo-600/40 border border-indigo-400/30 transition-all transform hover:-translate-y-0.5">
+                                <i class="bx bx-play-circle text-lg"></i>
+                                <span>Try Interactive Sandbox</span>
+                            </a>
+                            <a href="#modules" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm bg-slate-800/90 text-slate-200 hover:text-white hover:bg-slate-700/90 border border-slate-700 shadow-md transition-all">
+                                <i class="bx bx-layer text-lg text-indigo-400"></i>
+                                <span>Explore 7 Modules</span>
+                            </a>
+                        </div>
+
+                        <!-- System Architecture Highlights -->
+                        <div class="pt-2 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-slate-300 font-medium">
+                            <span class="flex items-center gap-1.5"><i class="bx bx-check-shield text-emerald-400 text-base"></i> Role-Based Access (Spatie)</span>
+                            <span class="flex items-center gap-1.5"><i class="bx bx-mobile text-indigo-400 text-base"></i> Geofenced Punch (100m)</span>
+                            <span class="flex items-center gap-1.5"><i class="bx bx-transfer-alt text-purple-400 text-base"></i> REST / Token Feeder</span>
+                        </div>
+                    </div>
+
+                    <!-- Right: Live System Velocity KPI Card -->
+                    <div class="lg:col-span-5">
+                        <div class="rounded-2xl bg-slate-900/90 border border-indigo-700/40 p-6 shadow-2xl backdrop-blur-md">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+                                <div class="flex items-center gap-2 text-xs font-bold text-slate-300">
+                                    <i class="bx bx-broadcast text-emerald-400 text-base animate-pulse"></i>
+                                    <span>Live System Velocity</span>
+                                </div>
+                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30 flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                    ONLINE
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60 hover:border-indigo-500/50 transition">
+                                    <span class="text-[11px] font-semibold text-slate-400 block">Total Staff</span>
+                                    <span class="text-2xl font-black text-white block mt-1">1,248</span>
+                                    <span class="text-[10px] text-emerald-400 font-bold flex items-center gap-0.5 mt-0.5">
+                                        <i class="bx bx-up-arrow-alt"></i> +12 this mo
+                                    </span>
+                                </div>
+                                <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60 hover:border-indigo-500/50 transition">
+                                    <span class="text-[11px] font-semibold text-slate-400 block">Clocked In Today</span>
+                                    <span class="text-2xl font-black text-white block mt-1">94.8%</span>
+                                    <span class="text-[10px] text-slate-400 font-medium block mt-0.5">
+                                        1,183 verified
+                                    </span>
+                                </div>
+                                <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60 hover:border-indigo-500/50 transition">
+                                    <span class="text-[11px] font-semibold text-slate-400 block">Leave In-Flight</span>
+                                    <span class="text-2xl font-black text-amber-400 block mt-1">18</span>
+                                    <span class="text-[10px] text-amber-300 font-medium block mt-0.5">
+                                        6 awaiting HR
+                                    </span>
+                                </div>
+                                <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60 hover:border-indigo-500/50 transition">
+                                    <span class="text-[11px] font-semibold text-slate-400 block">Payroll Feeder</span>
+                                    <span class="text-2xl font-black text-indigo-400 block mt-1">Ready</span>
+                                    <span class="text-[10px] text-indigo-300 font-medium block mt-0.5">
+                                        PayFlow MY Sync
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Bottom Quick Health Bar -->
+                            <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+                                <span class="flex items-center gap-1"><i class="bx bx-server text-indigo-400"></i> Laravel 12 &bull; PHP 8.3</span>
+                                <span class="font-mono text-[10px] text-emerald-400">TTFB &lt; 140ms</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: INTERACTIVE LIVE DEMO SANDBOX -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20" id="sandbox">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 uppercase tracking-wider">
+                    Hands-On Demonstration
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-3 tracking-tight">
+                    Interactive HR Operations Sandbox
+                </h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mt-2">
+                    Test key HR capabilities directly in your browser without requiring a backend connection.
+                </p>
+            </div>
+
+            <!-- Tab Selectors -->
+            <div class="flex flex-wrap justify-center gap-2 mb-8" id="sandbox-tabs">
+                <button onclick="switchTab('punch')" id="tab-btn-punch" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all bg-indigo-600 text-white shadow-md shadow-indigo-600/30 flex items-center gap-2 cursor-pointer">
+                    <i class="bx bx-map-pin text-base"></i>
+                    <span>Geofenced Clock-In</span>
+                </button>
+                <button onclick="switchTab('leave')" id="tab-btn-leave" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 cursor-pointer">
+                    <i class="bx bx-calendar-event text-base"></i>
+                    <span>Leave Approval Loop</span>
+                </button>
+                <button onclick="switchTab('ats')" id="tab-btn-ats" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 cursor-pointer">
+                    <i class="bx bx-briefcase text-base"></i>
+                    <span>Recruitment ATS Kanban</span>
+                </button>
+                <button onclick="switchTab('payroll')" id="tab-btn-payroll" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 cursor-pointer">
+                    <i class="bx bx-transfer-alt text-base"></i>
+                    <span>Payroll Feeder API</span>
+                </button>
+            </div>
+
+            <!-- Tab Panels Container -->
+            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+                
+                <!-- TAB 1: GEOFENCED ATTENDANCE PUNCH SIMULATOR -->
+                <div id="panel-punch" class="tab-panel p-6 sm:p-10">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                        <div class="lg:col-span-6 space-y-5">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                                    <i class="bx bx-navigation"></i>
+                                </span>
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">Geofenced GPS Punch Verification</h3>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400">HTML5 Geolocation API + 100m Perimeter Validation</span>
+                                </div>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                                Under Module 03 (<code class="text-indigo-600 dark:text-indigo-400 font-mono">REQ-ATT-01</code>), staff attendance verifies device coordinates against the corporate branch coordinate registry. Over 100m perimeter defaults to geo-exception pending manager sign-off.
+                            </p>
+
+                            <!-- Interactive Punch Buttons -->
+                            <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-4">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="font-bold text-slate-700 dark:text-slate-300">Target HQ Location:</span>
+                                    <span class="font-mono text-indigo-600 dark:text-indigo-400 font-semibold">3.1390° N, 101.6869° E (Kuala Lumpur HQ)</span>
+                                </div>
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="font-bold text-slate-700 dark:text-slate-300">Geofence Radius:</span>
+                                    <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold">100 Meters Max</span>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3 pt-2">
+                                    <button onclick="simulatePunch('in')" id="btn-punch-in" class="px-4 py-3 rounded-xl font-bold text-xs sm:text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/30 transition flex items-center justify-center gap-2 cursor-pointer">
+                                        <i class="bx bx-log-in-circle text-lg"></i>
+                                        <span>Clock In Now</span>
+                                    </button>
+                                    <button onclick="simulatePunch('out')" id="btn-punch-out" class="px-4 py-3 rounded-xl font-bold text-xs sm:text-sm bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-600/30 transition flex items-center justify-center gap-2 cursor-pointer">
+                                        <i class="bx bx-log-out-circle text-lg"></i>
+                                        <span>Clock Out</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Live Punch Telemetry Feed -->
+                        <div class="lg:col-span-6">
+                            <div class="p-5 rounded-2xl bg-slate-900 text-slate-200 border border-slate-800 font-mono text-xs">
+                                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                        <span class="font-bold text-white text-xs">Geo-Punch Log Console</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400 font-sans">Mock Employee: EMP-2026-0042</span>
+                                </div>
+                                <div id="punch-log-feed" class="space-y-2 h-44 overflow-y-auto custom-scrollbar text-[11px]">
+                                    <div class="text-slate-400">[08:58:12] GPS Initialized: Accuracy +/- 4.2m</div>
+                                    <div class="text-slate-400">[08:59:44] Perimeter check: 24.8m from HQ pin &bull; <span class="text-emerald-400 font-bold">PASS</span></div>
+                                    <div class="text-emerald-300 font-semibold">[09:00:01] Clock-in confirmed. Shift: Standard Fixed (09:00 - 18:00)</div>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400 font-sans">
+                                    <span id="punch-status-text">Status: Currently Clocked In</span>
+                                    <span class="text-indigo-400 font-bold">Auto-Syncing</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: MULTI-TIER LEAVE APPROVAL LOOP -->
+                <div id="panel-leave" class="tab-panel hidden p-6 sm:p-10">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                        <div class="lg:col-span-6 space-y-4">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                                    <i class="bx bx-calendar-check"></i>
+                                </span>
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">Leave Accrual &amp; Multi-Tier Routing</h3>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400">Employee &rarr; Dept Manager &rarr; HR Approval Chain</span>
+                                </div>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                                Requests undergo automatic overlap checks (<code class="text-indigo-600 dark:text-indigo-400 font-mono">REQ-LV-03</code>) and pro-rated balance deductions. Approved unpaid leaves auto-feed into the external payroll engine.
+                            </p>
+
+                            <!-- Leave Submission Mini Form -->
+                            <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-3 text-xs">
+                                <div>
+                                    <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Leave Category</label>
+                                    <select id="leave-type-select" class="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+                                        <option value="Annual Leave">Annual Leave (14 Days Remaining)</option>
+                                        <option value="Medical Leave">Medical Leave (12 Days Remaining)</option>
+                                        <option value="Unpaid Leave">Unpaid Leave (Feeds external payroll deduction)</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Days Count</label>
+                                        <input type="number" id="leave-days-input" value="2" min="1" max="14" class="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Coverage Officer</label>
+                                        <input type="text" value="Ahmad Zaki (Senior Dev)" readonly class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700">
+                                    </div>
+                                </div>
+                                <button onclick="submitSimulatedLeave()" class="w-full py-2.5 mt-2 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/30 transition cursor-pointer">
+                                    Submit Application for Approval
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Right: Real-Time Approval Progress Stepper -->
+                        <div class="lg:col-span-6">
+                            <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-4">
+                                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                                    <span class="text-xs font-bold text-slate-900 dark:text-white">Workflow State: <span id="leave-flow-state" class="text-indigo-600 dark:text-indigo-400 font-extrabold">In Review</span></span>
+                                    <span id="leave-balance-display" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/20 text-indigo-700 dark:text-indigo-300">
+                                        Annual Balance: 14d
+                                    </span>
+                                </div>
+
+                                <!-- Progress Steps -->
+                                <div class="space-y-4 text-xs">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shrink-0">
+                                            <i class="bx bx-check"></i>
+                                        </div>
+                                        <div>
+                                            <div class="font-bold text-slate-900 dark:text-white">1. Submission &amp; Overlap Validation</div>
+                                            <div class="text-[11px] text-slate-500 dark:text-slate-400">Verified zero clash with team blackout dates</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-3">
+                                        <div id="step-manager-icon" class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
+                                            <i class="bx bx-time-five"></i>
+                                        </div>
+                                        <div class="flex-1 flex items-center justify-between">
+                                            <div>
+                                                <div class="font-bold text-slate-900 dark:text-white">2. Department Manager Signoff</div>
+                                                <div class="text-[11px] text-slate-500 dark:text-slate-400" id="step-manager-desc">Reviewing project sprint staffing cover</div>
+                                            </div>
+                                            <button onclick="approveManagerStep()" id="btn-approve-manager" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer">
+                                                Approve
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-3">
+                                        <div id="step-hr-icon" class="w-7 h-7 rounded-full bg-slate-300 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold text-sm shrink-0">
+                                            3
+                                        </div>
+                                        <div class="flex-1 flex items-center justify-between">
+                                            <div>
+                                                <div class="font-bold text-slate-900 dark:text-white">3. HR Administrator Final Authorization</div>
+                                                <div class="text-[11px] text-slate-500 dark:text-slate-400" id="step-hr-desc">Statutory policy and ledger deduction</div>
+                                            </div>
+                                            <button onclick="approveHrStep()" id="btn-approve-hr" disabled class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed">
+                                                Approve
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: RECRUITMENT & ATS PIPELINE KANBAN -->
+                <div id="panel-ats" class="tab-panel hidden p-6 sm:p-10">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Recruitment &amp; ATS Pipeline</h3>
+                            <span class="text-xs text-slate-500 dark:text-slate-400">Click arrow buttons to advance candidates through stages to 1-click onboarding</span>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-400/30">
+                            Req: REQ-ATS-02 Kanban
+                        </span>
+                    </div>
+
+                    <!-- Kanban Columns Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="ats-board">
+                        <!-- Column 1: Applied -->
+                        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center justify-between font-bold text-xs text-slate-700 dark:text-slate-300 pb-2 mb-2 border-b border-slate-200 dark:border-slate-800">
+                                <span>Applied / Screened</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-[10px]">1</span>
+                            </div>
+                            <div id="candidate-card-1" class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-2 text-xs">
+                                <div class="font-extrabold text-slate-900 dark:text-white">Farah Natasha</div>
+                                <div class="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold">Lead UX Researcher</div>
+                                <div class="text-[10px] text-slate-400">Applied 2d ago &bull; Resume 5/5</div>
+                                <button onclick="moveCandidate(1, 'interview')" class="w-full py-1.5 rounded-lg font-bold text-[11px] bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center gap-1 cursor-pointer">
+                                    <span>Move to Interview</span>
+                                    <i class="bx bx-right-arrow-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Column 2: Interviewing -->
+                        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center justify-between font-bold text-xs text-slate-700 dark:text-slate-300 pb-2 mb-2 border-b border-slate-200 dark:border-slate-800">
+                                <span>Interview Stage</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-[10px]">1</span>
+                            </div>
+                            <div id="candidate-card-2" class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-2 text-xs">
+                                <div class="font-extrabold text-slate-900 dark:text-white">Marcus Lee</div>
+                                <div class="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold">Senior Backend Engineer</div>
+                                <div class="text-[10px] text-emerald-500 font-semibold">Tech score: 92/100</div>
+                                <button onclick="moveCandidate(2, 'offer')" class="w-full py-1.5 rounded-lg font-bold text-[11px] bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center gap-1 cursor-pointer">
+                                    <span>Generate Offer</span>
+                                    <i class="bx bx-right-arrow-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Column 3: Offer Extended -->
+                        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center justify-between font-bold text-xs text-slate-700 dark:text-slate-300 pb-2 mb-2 border-b border-slate-200 dark:border-slate-800">
+                                <span>Offer Letter Ready</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-[10px]">1</span>
+                            </div>
+                            <div id="candidate-card-3" class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-2 text-xs">
+                                <div class="font-extrabold text-slate-900 dark:text-white">Nur Aishah</div>
+                                <div class="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold">HR Operations Lead</div>
+                                <div class="text-[10px] text-purple-400 font-semibold">Offer Accepted &bull; RM 7,500</div>
+                                <button onclick="moveCandidate(3, 'hired')" class="w-full py-1.5 rounded-lg font-bold text-[11px] bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-1 cursor-pointer">
+                                    <i class="bx bx-user-plus"></i>
+                                    <span>1-Click Onboard</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Column 4: Converted to Employee -->
+                        <div class="p-3.5 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40">
+                            <div class="flex items-center justify-between font-bold text-xs text-emerald-700 dark:text-emerald-300 pb-2 mb-2 border-b border-emerald-200 dark:border-emerald-800/40">
+                                <span>Active Onboarded</span>
+                                <span id="onboard-count-badge" class="px-2 py-0.5 rounded bg-emerald-200 dark:bg-emerald-900/60 text-[10px]">1</span>
+                            </div>
+                            <div id="hired-container" class="space-y-2">
+                                <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700/60 shadow-xs space-y-1.5 text-xs">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-extrabold text-slate-900 dark:text-white">Daniel Chong</span>
+                                        <span class="text-[9px] font-mono font-bold text-emerald-600 dark:text-emerald-400">EMP-2026-0098</span>
+                                    </div>
+                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">DevOps Specialist</div>
+                                    <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">
+                                        Profile Vault Activated
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: EXTERNAL PAYROLL FEEDER API -->
+                <div id="panel-payroll" class="tab-panel hidden p-6 sm:p-10">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                        <div class="lg:col-span-5 space-y-4">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                                    <i class="bx bx-transfer"></i>
+                                </span>
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">Decoupled Payroll Data Hub</h3>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400">Feeds Standalone PayFlow MY System</span>
+                                </div>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                                Under Module 07 (<code class="text-indigo-600 dark:text-indigo-400 font-mono">REQ-INT-01</code>), the HRMS produces cryptographically signed JSON &amp; CSV export streams consumed by the standalone payroll repository.
+                            </p>
+                            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
+                                <div class="font-bold text-slate-800 dark:text-slate-200">Export Payload Characteristics:</div>
+                                <ul class="space-y-1.5 text-slate-600 dark:text-slate-400 list-disc list-inside text-[11px]">
+                                    <li>Active Staff Master Data with masked NRIC/Tax ID</li>
+                                    <li>Verified Net Working Minutes from Geofenced Clock-ins</li>
+                                    <li>Approved Unpaid Leave Days for statutory salary deduction</li>
+                                    <li>Departmental Overtime Multipliers (1.5x &amp; 2.0x)</li>
+                                </ul>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="generateSyncPayload()" class="px-4 py-2.5 rounded-xl font-bold text-xs bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/30 transition cursor-pointer">
+                                    Re-generate Feed Payload
+                                </button>
+                                <a href="https://github.com/mralif93/payroll-management-system" target="_blank" class="px-4 py-2.5 rounded-xl font-bold text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-white hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition">
+                                    View PayFlow Repo &rarr;
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Right: JSON Payload Terminal Viewer -->
+                        <div class="lg:col-span-7">
+                            <div class="rounded-2xl bg-slate-900 border border-slate-800 p-5 font-mono text-xs">
+                                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <i class="bx bx-code-alt text-indigo-400"></i>
+                                        <span class="font-bold text-white">GET /api/v1/payroll-feed/monthly</span>
+                                    </div>
+                                    <span class="text-[10px] text-emerald-400 font-bold">Bearer Auth Valid</span>
+                                </div>
+                                <pre id="json-feed-pre" class="text-indigo-300 overflow-x-auto text-[11px] leading-relaxed custom-scrollbar max-h-72">{
+  "status": "success",
+  "generated_at": "2026-09-07T09:18:00+08:00",
+  "cycle_month": "2026-09",
+  "target_consumer": "PayFlow MY (Decoupled Engine)",
+  "total_records": 1248,
+  "summary": {
+    "total_verified_hours": 199680,
+    "unpaid_leave_days": 14,
+    "overtime_hours": 312.5
+  },
+  "sample_employee_feed": {
+    "employee_code": "EMP-2026-0042",
+    "department": "Engineering",
+    "designation": "Staff Software Engineer",
+    "verified_days_present": 22,
+    "unpaid_leave_days": 0,
+    "approved_overtime_hrs": 4.5,
+    "bank_account_hash": "8c42...9f01"
+  }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: CORE HR MODULES CATALOG (1 through 7) -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20" id="modules">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 uppercase tracking-wider">
+                    Architecture Blueprint
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-3 tracking-tight">
+                    Structured Operations Architecture
+                </h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mt-2">
+                    Seven robust functional modules designed strictly according to the System Requirements Specification.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Module 1: Auth & Security -->
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:border-indigo-500/40">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl font-bold mb-4 border border-indigo-100 dark:border-indigo-800/60">
+                        <i class="bx bx-shield-quarter"></i>
+                    </div>
+                    <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Authentication &amp; Audit Trail</h3>
+                    <p class="mt-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        TOTP Two-Factor Authentication (2FA) for administrators, 30-minute idle session timeout, and immutable audit logs capturing actor, IP address, and model mutations.
+                    </p>
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                        <span>Module 01 &bull; RBAC &amp; Security</span>
+                        <i class="bx bx-chevron-right text-lg"></i>
+                    </div>
+                </div>
+
+                <!-- Module 2: Employee Lifecycle (PIM) -->
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:border-indigo-500/40">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl font-bold mb-4 border border-blue-100 dark:border-blue-800/60">
+                        <i class="bx bx-user-check"></i>
+                    </div>
+                    <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Employee Master Vault (PIM)</h3>
+                    <p class="mt-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Lifecycle management with sequential employee code generation (<code class="font-mono text-indigo-600 dark:text-indigo-400 text-[11px]">EMP-YYYY-XXXX</code>), AES-256 encrypted documents, and interactive departmental org tree.
+                    </p>
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-semibold text-blue-600 dark:text-blue-400">
+                        <span>Module 02 &bull; Master Records</span>
+                        <i class="bx bx-chevron-right text-lg"></i>
+                    </div>
+                </div>
+
+                <!-- Module 3: Geofenced Attendance -->
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:border-emerald-500/40">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl font-bold mb-4 border border-emerald-100 dark:border-emerald-800/60">
+                        <i class="bx bx-map-pin"></i>
+                    </div>
+                    <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Geofenced Attendance</h3>
+                    <p class="mt-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Single-click digital punch-in validated via HTML5 GPS perimeter checks (100m radius), rotational shifts, grace periods, and configurable overtime multiplier engines.
+                    </p>
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                        <span>Module 03 &bull; Time Tracking</span>
+                        <i class="bx bx-chevron-right text-lg"></i>
+                    </div>
+                </div>
+
+                <!-- Module 4: Leave Governance -->
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:border-amber-500/40">
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-2xl font-bold mb-4 border border-amber-100 dark:border-amber-800/60">
+                        <i class="bx bx-calendar-event"></i>
+                    </div>
+                    <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Leave &amp; Absence Governance</h3>
+                    <p class="mt-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Automated pro-rated entitlement accrual, dual-step approval chain (Manager &rarr; HR), instant overlap prevention checks, and team absence calendar sync.
+                    </p>
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-semibold text-amber-600 dark:text-amber-400">
+                        <span>Module 04 &bull; Multi-Tier Approvals</span>
+                        <i class="bx bx-chevron-right text-lg"></i>
+                    </div>
+                </div>
+
+                <!-- Module 5: Performance OKRs -->
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:border-purple-500/40">
+                    <div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center text-2xl font-bold mb-4 border border-purple-100 dark:border-purple-800/60">
+                        <i class="bx bx-target-lock"></i>
+                    </div>
+                    <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Performance Appraisals &amp; OKRs</h3>
+                    <p class="mt-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Quarterly quantifiable Objectives and Key Results with live progress bars, 360-degree review forms (Self, Peer, and Manager evaluation) with weighted scoring.
+                    </p>
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-semibold text-purple-600 dark:text-purple-400">
+                        <span>Module 05 &bull; Appraisal Matrix</span>
+                        <i class="bx bx-chevron-right text-lg"></i>
+                    </div>
+                </div>
+
+                <!-- Module 6: Recruitment ATS -->
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:border-sky-500/40">
+                    <div class="w-12 h-12 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center text-2xl font-bold mb-4 border border-sky-100 dark:border-sky-800/60">
+                        <i class="bx bx-briefcase"></i>
+                    </div>
+                    <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Recruitment &amp; ATS Pipeline</h3>
+                    <p class="mt-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Public career openings portal, drag-and-drop applicant Kanban stages, formatted employment offer letter generator, and single-click employee onboarding.
+                    </p>
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-semibold text-sky-600 dark:text-sky-400">
+                        <span>Module 06 &bull; Talent Acquisition</span>
+                        <i class="bx bx-chevron-right text-lg"></i>
+                    </div>
+                </div>
+
+                <!-- Module 7: Payroll Feeder (Full Width or Key Card) -->
+                <div id="payroll-feeder" class="md:col-span-2 lg:col-span-3 p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white border border-indigo-700/40 shadow-xl">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                        <div class="lg:col-span-8 space-y-3">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 uppercase">
+                                    Module 07 &bull; System Integration
+                                </span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                                    Decoupled Architecture
+                                </span>
+                            </div>
+                            <h3 class="text-xl font-extrabold">Dedicated Payroll Synchronization Hub</h3>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                To ensure modular software segregation, payroll calculation and statutory tax deductions are decoupled from HRMS. PulseHR exports synchronized employee master records, verified work hours, and unpaid leaves to <a href="https://github.com/mralif93/payroll-management-system" target="_blank" class="text-indigo-400 underline font-semibold hover:text-indigo-300">PayFlow MY</a> via authenticated REST endpoints and scheduled CSV feeds.
+                            </p>
+                        </div>
+                        <div class="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3">
+                            <a href="https://github.com/mralif93/payroll-management-system" target="_blank" class="w-full text-center py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg transition">
+                                <i class="bx bx-link-external mr-1"></i> Open PayFlow MY Repo
+                            </a>
+                            <a href="#sandbox" onclick="switchTab('payroll')" class="w-full text-center py-3 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/10 transition">
+                                Test Data Feed Simulator
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 4: INTERACTIVE RBAC PERMISSION MATRIX -->
+        <section class="border-t border-slate-200 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/60 py-16" id="rbac">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-10">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 uppercase tracking-wider">
+                        Security &amp; Governance
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-3 tracking-tight">
+                        Role-Based Access Matrix (RBAC)
+                    </h2>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm mt-2">
+                        Filter permissions by organizational role to inspect exact boundary enforcement.
+                    </p>
+
+                    <!-- Interactive Role Filter Buttons -->
+                    <div class="flex flex-wrap justify-center gap-2 mt-6">
+                        <button onclick="filterRbac('all')" id="rbac-btn-all" class="rbac-btn px-3.5 py-1.5 rounded-xl font-bold text-xs bg-indigo-600 text-white shadow-xs cursor-pointer">
+                            All 4 Roles
+                        </button>
+                        <button onclick="filterRbac('admin')" id="rbac-btn-admin" class="rbac-btn px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 cursor-pointer">
+                            Super Admin
+                        </button>
+                        <button onclick="filterRbac('hr')" id="rbac-btn-hr" class="rbac-btn px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 cursor-pointer">
+                            HR Admin
+                        </button>
+                        <button onclick="filterRbac('manager')" id="rbac-btn-manager" class="rbac-btn px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 cursor-pointer">
+                            Dept Lead
+                        </button>
+                        <button onclick="filterRbac('employee')" id="rbac-btn-employee" class="rbac-btn px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 cursor-pointer">
+                            General Staff
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RBAC Table -->
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900">
+                    <table class="w-full text-left text-xs" id="rbac-table">
+                        <thead>
+                            <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider">
+                                <th class="py-4 px-6">Module / Area</th>
+                                <th class="py-4 px-6 text-center rbac-col-admin">Super Admin</th>
+                                <th class="py-4 px-6 text-center rbac-col-hr">HR Administrator</th>
+                                <th class="py-4 px-6 text-center rbac-col-manager">Department Lead</th>
+                                <th class="py-4 px-6 text-center rbac-col-employee">General Staff</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80 text-slate-600 dark:text-slate-400 font-medium">
+                            <tr>
+                                <td class="py-3.5 px-6 font-bold text-slate-900 dark:text-white">System Settings &amp; Audit Trail</td>
+                                <td class="py-3.5 px-6 text-center text-emerald-600 dark:text-emerald-400 font-bold rbac-col-admin"><span class="px-2 py-0.5 rounded bg-emerald-500/10">Full Access</span></td>
+                                <td class="py-3.5 px-6 text-center text-slate-400 rbac-col-hr"><span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800">No Access</span></td>
+                                <td class="py-3.5 px-6 text-center text-slate-400 rbac-col-manager"><span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800">No Access</span></td>
+                                <td class="py-3.5 px-6 text-center text-slate-400 rbac-col-employee"><span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800">No Access</span></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3.5 px-6 font-bold text-slate-900 dark:text-white">Personnel Information (PIM)</td>
+                                <td class="py-3.5 px-6 text-center text-emerald-600 dark:text-emerald-400 font-bold rbac-col-admin"><span class="px-2 py-0.5 rounded bg-emerald-500/10">Full Access</span></td>
+                                <td class="py-3.5 px-6 text-center text-emerald-600 dark:text-emerald-400 font-bold rbac-col-hr"><span class="px-2 py-0.5 rounded bg-emerald-500/10">Full Access</span></td>
+                                <td class="py-3.5 px-6 text-center text-indigo-600 dark:text-indigo-400 font-semibold rbac-col-manager"><span class="px-2 py-0.5 rounded bg-indigo-500/10">Team Only</span></td>
+                                <td class="py-3.5 px-6 text-center text-slate-700 dark:text-slate-300 rbac-col-employee"><span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800">Self Only</span></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3.5 px-6 font-bold text-slate-900 dark:text-white">Attendance &amp; Geofencing</td>
+                                <td class="py-3.5 px-6 text-center text-emerald-600 dark:text-emerald-400 font-bold rbac-col-admin"><span class="px-2 py-0.5 rounded bg-emerald-500/10">Full Access</span></td>
+                                <td class="py-3.5 px-6 text-center text-emerald-600 dark:text-emerald-400 font-bold rbac-col-hr"><span class="px-2 py-0.5 rounded bg-emerald-500/10">Full Access</span></td>
+                                <td class="py-3.5 px-6 text-center text-indigo-600 dark:text-indigo-400 font-semibold rbac-col-manager"><span class="px-2 py-0.5 rounded bg-indigo-500/10">Approve Team</span></td>
+                                <td class="py-3.5 px-6 text-center text-slate-700 dark:text-slate-300 rbac-col-employee"><span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800">Clock In/Out</span></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3.5 px-6 font-bold text-slate-900 dark:text-white">Leave Administration</td>
+                                <td class="py-3.5 px-6 text-center text-emerald-600 dark:text-emerald-400 font-bold rbac-col-admin"><span class="px-2 py-0.5 rounded bg-emerald-500/10">Full Access</span></td>
+                                <td class="py-3.5 px-6 text-center text-emerald-600 dark:text-emerald-400 font-bold rbac-col-hr"><span class="px-2 py-0.5 rounded bg-emerald-500/10">Manage Policies</span></td>
+                                <td class="py-3.5 px-6 text-center text-indigo-600 dark:text-indigo-400 font-semibold rbac-col-manager"><span class="px-2 py-0.5 rounded bg-indigo-500/10">Approve Team</span></td>
+                                <td class="py-3.5 px-6 text-center text-slate-700 dark:text-slate-300 rbac-col-employee"><span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800">Apply &amp; Balance</span></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3.5 px-6 font-bold text-slate-900 dark:text-white">Performance Appraisals &amp; OKRs</td>
+                                <td class="py-3.5 px-6 text-center text-emerald-600 dark:text-emerald-400 font-bold rbac-col-admin"><span class="px-2 py-0.5 rounded bg-emerald-500/10">Full Access</span></td>
+                                <td class="py-3.5 px-6 text-center text-emerald-600 dark:text-emerald-400 font-bold rbac-col-hr"><span class="px-2 py-0.5 rounded bg-emerald-500/10">Manage Cycles</span></td>
+                                <td class="py-3.5 px-6 text-center text-indigo-600 dark:text-indigo-400 font-semibold rbac-col-manager"><span class="px-2 py-0.5 rounded bg-indigo-500/10">Review Team</span></td>
+                                <td class="py-3.5 px-6 text-center text-slate-700 dark:text-slate-300 rbac-col-employee"><span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800">Self Assessment</span></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3.5 px-6 font-bold text-slate-900 dark:text-white">Recruitment &amp; ATS Pipeline</td>
+                                <td class="py-3.5 px-6 text-center text-emerald-600 dark:text-emerald-400 font-bold rbac-col-admin"><span class="px-2 py-0.5 rounded bg-emerald-500/10">Full Access</span></td>
+                                <td class="py-3.5 px-6 text-center text-emerald-600 dark:text-emerald-400 font-bold rbac-col-hr"><span class="px-2 py-0.5 rounded bg-emerald-500/10">Full Access</span></td>
+                                <td class="py-3.5 px-6 text-center text-indigo-600 dark:text-indigo-400 font-semibold rbac-col-manager"><span class="px-2 py-0.5 rounded bg-indigo-500/10">Interviewer</span></td>
+                                <td class="py-3.5 px-6 text-center text-slate-700 dark:text-slate-300 rbac-col-employee"><span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800">Referrals</span></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3.5 px-6 font-bold text-slate-900 dark:text-white">Payroll Feed &amp; Token API</td>
+                                <td class="py-3.5 px-6 text-center text-emerald-600 dark:text-emerald-400 font-bold rbac-col-admin"><span class="px-2 py-0.5 rounded bg-emerald-500/10">Generate Keys</span></td>
+                                <td class="py-3.5 px-6 text-center text-emerald-600 dark:text-emerald-400 font-bold rbac-col-hr"><span class="px-2 py-0.5 rounded bg-emerald-500/10">Export CSV</span></td>
+                                <td class="py-3.5 px-6 text-center text-slate-400 rbac-col-manager"><span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800">No Access</span></td>
+                                <td class="py-3.5 px-6 text-center text-slate-400 rbac-col-employee"><span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800">No Access</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: TECHNICAL ARCHITECTURE & STACK BLUEPRINT -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20" id="architecture">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800 uppercase tracking-wider">
+                    Engineering Foundation
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-3 tracking-tight">
+                    Technical Specifications
+                </h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mt-2">
+                    Modern enterprise stack crafted for high-concurrency workloads and strict security compliance.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Stack Item 1 -->
+                <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl font-bold">
+                        <i class="bx bxl-php"></i>
+                    </div>
+                    <h4 class="font-extrabold text-slate-900 dark:text-white text-sm">Laravel 12.x Backend</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        PHP 8.3 with strict type declarations, Eloquent ORM eager-loading to eliminate N+1 queries, and automated Pest PHP test suites.
+                    </p>
+                </div>
+
+                <!-- Stack Item 2 -->
+                <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xl font-bold">
+                        <i class="bx bxl-tailwind-css"></i>
+                    </div>
+                    <h4 class="font-extrabold text-slate-900 dark:text-white text-sm">Tailwind CSS &amp; Vite</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Modern Tailwind color design tokens, fluid dark/light theming, Boxicons, Animate.css, and instantaneous hot-module replacement.
+                    </p>
+                </div>
+
+                <!-- Stack Item 3 -->
+                <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold">
+                        <i class="bx bx-data"></i>
+                    </div>
+                    <h4 class="font-extrabold text-slate-900 dark:text-white text-sm">PostgreSQL &amp; Redis</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        ACID relational compliance, Redis queue workers for asynchronous export jobs and transactional notification dispatchers.
+                    </p>
+                </div>
+
+                <!-- Stack Item 4 -->
+                <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl font-bold">
+                        <i class="bx bx-shield-alt-2"></i>
+                    </div>
+                    <h4 class="font-extrabold text-slate-900 dark:text-white text-sm">Enterprise Security</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        PII encryption at rest via Laravel Crypt facade, Spatie RBAC guards, CSRF token validation, and rate-limiting controllers.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs py-10 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold">
+                    <i class="bx bxs-user-badge text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-black text-slate-900 dark:text-white text-sm tracking-tight">PulseHR</span>
+                    <span class="text-slate-400 block text-[11px]">&copy; 2026 PulseHR Management Suite. All rights reserved.</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-5 text-slate-500 dark:text-slate-400 font-semibold">
+                <a href="#overview" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Back to Top</a>
+                <a href="#sandbox" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Live Sandbox</a>
+                <a href="https://github.com/mralif93/human-resources-management-system" target="_blank" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">GitHub Repo</a>
+                <a href="https://github.com/mralif93/payroll-management-system" target="_blank" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">PayFlow MY</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive JavaScript Logic -->
+    <script>
+        // Dark / Light Theme Controller
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('pulsehr_theme', isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
+        }
+
+        function updateThemeIcon(isDark) {
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                icon.className = isDark ? 'bx bx-sun text-lg sm:text-xl text-amber-400' : 'bx bx-moon text-lg sm:text-xl text-slate-600';
+            }
+        }
+
+        // Initialize Theme Icon state
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDark = document.documentElement.classList.contains('dark');
+            updateThemeIcon(isDark);
+        });
+
+        // Tab Switcher for Sandbox
+        function switchTab(tabId) {
+            // Hide all tab panels
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+            // Reset tab button states
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = 'tab-btn px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 cursor-pointer';
+            });
+
+            // Show active panel
+            const activePanel = document.getElementById('panel-' + tabId);
+            if (activePanel) {
+                activePanel.classList.remove('hidden');
+                activePanel.classList.add('animate__animated', 'animate__fadeIn');
+            }
+
+            // Highlight active button
+            const activeBtn = document.getElementById('tab-btn-' + tabId);
+            if (activeBtn) {
+                activeBtn.className = 'tab-btn px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all bg-indigo-600 text-white shadow-md shadow-indigo-600/30 flex items-center gap-2 cursor-pointer';
+            }
+        }
+
+        // Simulator 1: Geofenced Punch
+        let isClockedIn = true;
+        function simulatePunch(action) {
+            const feed = document.getElementById('punch-log-feed');
+            const statusText = document.getElementById('punch-status-text');
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+
+            if (action === 'in') {
+                isClockedIn = true;
+                feed.innerHTML += `<div class="text-emerald-300 font-semibold">[${timeStr}] [IN] GPS (3.1391, 101.6870) verified &bull; Distance 18m &bull; Clock-in recorded</div>`;
+                statusText.innerText = 'Status: Currently Clocked In';
+            } else {
+                isClockedIn = false;
+                feed.innerHTML += `<div class="text-rose-300 font-semibold">[${timeStr}] [OUT] Clock-out registered &bull; Shift duration 8h 12m calculated</div>`;
+                statusText.innerText = 'Status: Clocked Out (Shift Completed)';
+            }
+            feed.scrollTop = feed.scrollHeight;
+        }
+
+        // Simulator 2: Leave Approvals
+        let leaveBalance = 14;
+        function submitSimulatedLeave() {
+            const type = document.getElementById('leave-type-select').value;
+            const days = parseInt(document.getElementById('leave-days-input').value) || 1;
+            const flowState = document.getElementById('leave-flow-state');
+            const btnManager = document.getElementById('btn-approve-manager');
+            const btnHr = document.getElementById('btn-approve-hr');
+            const stepManagerIcon = document.getElementById('step-manager-icon');
+            const stepManagerDesc = document.getElementById('step-manager-desc');
+            const stepHrIcon = document.getElementById('step-hr-icon');
+            const stepHrDesc = document.getElementById('step-hr-desc');
+
+            flowState.innerText = `Pending Manager Approval (${days}d ${type})`;
+            flowState.className = 'text-amber-500 font-extrabold';
+
+            // Reset buttons
+            btnManager.disabled = false;
+            btnManager.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer';
+            btnManager.innerText = 'Approve';
+            stepManagerIcon.className = 'w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0';
+            stepManagerIcon.innerHTML = '<i class="bx bx-time-five"></i>';
+            stepManagerDesc.innerText = 'Reviewing department shift coverage';
+
+            btnHr.disabled = true;
+            btnHr.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed';
+            btnHr.innerText = 'Approve';
+            stepHrIcon.className = 'w-7 h-7 rounded-full bg-slate-300 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold text-sm shrink-0';
+            stepHrIcon.innerText = '3';
+            stepHrDesc.innerText = 'Statutory policy and ledger deduction';
+        }
+
+        function approveManagerStep() {
+            const flowState = document.getElementById('leave-flow-state');
+            const btnManager = document.getElementById('btn-approve-manager');
+            const btnHr = document.getElementById('btn-approve-hr');
+            const stepManagerIcon = document.getElementById('step-manager-icon');
+            const stepManagerDesc = document.getElementById('step-manager-desc');
+
+            stepManagerIcon.className = 'w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shrink-0';
+            stepManagerIcon.innerHTML = '<i class="bx bx-check"></i>';
+            stepManagerDesc.innerText = 'Approved by Line Manager (Ahmad Zaki)';
+            btnManager.disabled = true;
+            btnManager.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed';
+            btnManager.innerText = 'Signed';
+
+            flowState.innerText = 'Pending HR Authorization';
+            flowState.className = 'text-indigo-600 dark:text-indigo-400 font-extrabold';
+
+            btnHr.disabled = false;
+            btnHr.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer';
+        }
+
+        function approveHrStep() {
+            const flowState = document.getElementById('leave-flow-state');
+            const btnHr = document.getElementById('btn-approve-hr');
+            const stepHrIcon = document.getElementById('step-hr-icon');
+            const stepHrDesc = document.getElementById('step-hr-desc');
+            const balanceDisplay = document.getElementById('leave-balance-display');
+            const days = parseInt(document.getElementById('leave-days-input').value) || 1;
+
+            leaveBalance = Math.max(0, leaveBalance - days);
+            balanceDisplay.innerText = `Annual Balance: ${leaveBalance}d`;
+
+            stepHrIcon.className = 'w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shrink-0';
+            stepHrIcon.innerHTML = '<i class="bx bx-check"></i>';
+            stepHrDesc.innerText = 'Authorized by HR Admin &bull; Cal Sync Dispatched';
+
+            btnHr.disabled = true;
+            btnHr.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed';
+            btnHr.innerText = 'Authorized';
+
+            flowState.innerText = 'Fully Approved & Enacted';
+            flowState.className = 'text-emerald-500 font-extrabold';
+        }
+
+        // Simulator 3: Recruitment ATS Kanban
+        let onboardCount = 1;
+        function moveCandidate(id, stage) {
+            const card = document.getElementById(`candidate-card-${id}`);
+            if (!card) return;
+
+            if (stage === 'interview') {
+                card.remove();
+                const col2 = document.getElementById('candidate-card-2').parentElement;
+                col2.innerHTML += `
+                    <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-indigo-400 dark:border-indigo-600 shadow-xs space-y-2 text-xs mt-2 animate__animated animate__fadeIn">
+                        <div class="font-extrabold text-slate-900 dark:text-white">Farah Natasha</div>
+                        <div class="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold">Lead UX Researcher</div>
+                        <div class="text-[10px] text-indigo-500 font-semibold">Scheduled for Panel Review</div>
+                        <button onclick="moveCandidate(99, 'offer')" class="w-full py-1.5 rounded-lg font-bold text-[11px] bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center gap-1 cursor-pointer">
+                            <span>Proceed to Offer</span>
+                            <i class="bx bx-right-arrow-alt"></i>
+                        </button>
+                    </div>
+                `;
+            } else if (stage === 'offer') {
+                card.remove();
+                const col3 = document.getElementById('candidate-card-3').parentElement;
+                col3.innerHTML += `
+                    <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-purple-400 dark:border-purple-600 shadow-xs space-y-2 text-xs mt-2 animate__animated animate__fadeIn">
+                        <div class="font-extrabold text-slate-900 dark:text-white">Marcus Lee</div>
+                        <div class="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold">Senior Backend Engineer</div>
+                        <div class="text-[10px] text-purple-400 font-semibold">Offer Sent &bull; RM 9,200/mo</div>
+                        <button onclick="moveCandidate(98, 'hired')" class="w-full py-1.5 rounded-lg font-bold text-[11px] bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-1 cursor-pointer">
+                            <i class="bx bx-user-plus"></i>
+                            <span>1-Click Onboard</span>
+                        </button>
+                    </div>
+                `;
+            } else if (stage === 'hired') {
+                card.remove();
+                onboardCount++;
+                document.getElementById('onboard-count-badge').innerText = onboardCount;
+                const container = document.getElementById('hired-container');
+                container.innerHTML += `
+                    <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700/60 shadow-xs space-y-1.5 text-xs animate__animated animate__fadeIn">
+                        <div class="flex items-center justify-between">
+                            <span class="font-extrabold text-slate-900 dark:text-white">Nur Aishah</span>
+                            <span class="text-[9px] font-mono font-bold text-emerald-600 dark:text-emerald-400">EMP-2026-0099</span>
+                        </div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400">HR Operations Lead</div>
+                        <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">
+                            Profile Vault Activated
+                        </span>
+                    </div>
+                `;
+            }
+        }
+
+        // Simulator 4: Payroll Payload Generator
+        function generateSyncPayload() {
+            const pre = document.getElementById('json-feed-pre');
+            const now = new Date();
+            const timeStr = now.toISOString();
+            const randomOvertime = (Math.random() * 5 + 2).toFixed(1);
+
+            pre.innerHTML = `{
+  "status": "success",
+  "generated_at": "${timeStr}",
+  "cycle_month": "2026-09",
+  "target_consumer": "PayFlow MY (Decoupled Engine)",
+  "total_records": 1248,
+  "summary": {
+    "total_verified_hours": 199680,
+    "unpaid_leave_days": 14,
+    "overtime_hours": ${(300 + Math.random() * 20).toFixed(1)}
+  },
+  "sample_employee_feed": {
+    "employee_code": "EMP-2026-0042",
+    "department": "Engineering",
+    "designation": "Staff Software Engineer",
+    "verified_days_present": 22,
+    "unpaid_leave_days": 0,
+    "approved_overtime_hrs": ${randomOvertime},
+    "bank_account_hash": "8c42...9f01"
+  }
+}`;
+            pre.classList.add('animate__animated', 'animate__pulse');
+            setTimeout(() => pre.classList.remove('animate__animated', 'animate__pulse'), 800);
+        }
+
+        // RBAC Role Filter
+        function filterRbac(role) {
+            // Reset buttons
+            document.querySelectorAll('.rbac-btn').forEach(btn => {
+                btn.className = 'rbac-btn px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer';
+            });
+            const activeBtn = document.getElementById('rbac-btn-' + role);
+            if (activeBtn) {
+                activeBtn.className = 'rbac-btn px-3.5 py-1.5 rounded-xl font-bold text-xs bg-indigo-600 text-white shadow-xs cursor-pointer';
+            }
+
+            const cols = ['admin', 'hr', 'manager', 'employee'];
+            cols.forEach(c => {
+                const elements = document.querySelectorAll('.rbac-col-' + c);
+                elements.forEach(el => {
+                    if (role === 'all' || role === c) {
+                        el.style.display = '';
+                    } else {
+                        el.style.display = 'none';
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
