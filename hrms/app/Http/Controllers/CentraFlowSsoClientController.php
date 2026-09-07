@@ -15,22 +15,29 @@ class CentraFlowSsoClientController extends Controller
      */
     public function redirect(Request $request)
     {
-        // 1. Generate CSRF state token
+        // 1. Generate CSRF state token & PKCE
         $state = Str::random(40);
+        $codeVerifier = Str::random(128);
+        $codeChallenge = strtr(rtrim(base64_encode(hash('sha256', $codeVerifier, true)), '='), '+/', '-_');
+
         $request->session()->put('oauth_state', $state);
+        $request->session()->put('centraflow_oauth_state', $state);
+        $request->session()->put('centraflow_code_verifier', $codeVerifier);
+
+        $host = rtrim(config('services.centraflow.url', config('services.centraflow.host', env('CENTRAFLOW_HOST', 'http://localhost:8004'))), '/');
 
         // 2. Build OAuth authorization query
         $query = http_build_query([
-            'client_id'     => config('services.centraflow.client_id', env('CENTRAFLOW_CLIENT_ID')),
-            'redirect_uri'  => config('services.centraflow.redirect_uri', env('CENTRAFLOW_REDIRECT_URI')),
-            'response_type' => 'code',
-            'scope'         => config('services.centraflow.scopes', env('CENTRAFLOW_SCOPES', '')),
-            'state'         => $state,
+            'client_id'             => config('services.centraflow.client_id', env('CENTRAFLOW_CLIENT_ID')),
+            'redirect_uri'          => config('services.centraflow.redirect_uri', env('CENTRAFLOW_REDIRECT_URI')),
+            'response_type'         => 'code',
+            'scope'                 => config('services.centraflow.scopes', env('CENTRAFLOW_SCOPES', 'hrms:read hrms:write')),
+            'state'                 => $state,
+            'code_challenge'        => $codeChallenge,
+            'code_challenge_method' => 'S256',
         ]);
 
-        $authUrl = rtrim(config('services.centraflow.host', env('CENTRAFLOW_HOST')), '/') . '/oauth/authorize?' . $query;
-
-        return redirect()->away($authUrl);
+        return redirect()->away($host . '/oauth/authorize?' . $query);
     }
 
     /**
@@ -39,26 +46,38 @@ class CentraFlowSsoClientController extends Controller
     public function callback(Request $request)
     {
         // 1. Verify CSRF state token
-        $savedState = $request->session()->pull('oauth_state');
+        $savedState = $request->session()->pull('centraflow_oauth_state') ?? $request->session()->pull('oauth_state');
+        $codeVerifier = $request->session()->pull('centraflow_code_verifier');
+
         if (empty($savedState) || $savedState !== $request->query('state')) {
-            abort(403, 'Invalid or expired OAuth state token.');
+            return redirect()->route('login')->withErrors(['oauth' => 'Invalid or expired OAuth state token.']);
         }
 
         if ($request->has('error')) {
-            return redirect('/login')->withErrors(['oauth' => 'CentraFlow authorization was denied.']);
+            return redirect()->route('login')->withErrors(['oauth' => 'CentraFlow authorization was denied.']);
         }
 
+        $host = rtrim(config('services.centraflow.url', config('services.centraflow.host', env('CENTRAFLOW_HOST', 'http://localhost:8004'))), '/');
+        $clientId = config('services.centraflow.client_id', env('CENTRAFLOW_CLIENT_ID'));
+        $clientSecret = config('services.centraflow.client_secret', env('CENTRAFLOW_CLIENT_SECRET'));
+        $redirectUri = config('services.centraflow.redirect_uri', env('CENTRAFLOW_REDIRECT_URI'));
+
         // 2. Exchange authorization code for access token
-        $tokenResponse = Http::asForm()->post(rtrim(config('services.centraflow.host', env('CENTRAFLOW_HOST')), '/') . '/oauth/token', [
+        $tokenParams = [
             'grant_type'    => 'authorization_code',
-            'client_id'     => config('services.centraflow.client_id', env('CENTRAFLOW_CLIENT_ID')),
-            'client_secret' => config('services.centraflow.client_secret', env('CENTRAFLOW_CLIENT_SECRET')),
-            'redirect_uri'  => config('services.centraflow.redirect_uri', env('CENTRAFLOW_REDIRECT_URI')),
+            'client_id'     => $clientId,
+            'client_secret' => $clientSecret,
+            'redirect_uri'  => $redirectUri,
             'code'          => $request->query('code'),
-        ]);
+        ];
+        if ($codeVerifier) {
+            $tokenParams['code_verifier'] = $codeVerifier;
+        }
+
+        $tokenResponse = Http::asForm()->post($host . '/oauth/token', $tokenParams);
 
         if (! $tokenResponse->successful()) {
-            return redirect('/login')->withErrors(['oauth' => 'Could not exchange code with CentraFlow: ' . $tokenResponse->body()]);
+            return redirect()->route('login')->withErrors(['oauth' => 'Could not exchange code with CentraFlow: ' . $tokenResponse->body()]);
         }
 
         $tokenPayload = $tokenResponse->json();
@@ -67,15 +86,24 @@ class CentraFlowSsoClientController extends Controller
         // 3. Retrieve user profile from CentraFlow master directory
         $userResponse = Http::withToken($accessToken)
             ->acceptJson()
-            ->get(rtrim(config('services.centraflow.host', env('CENTRAFLOW_HOST')), '/') . '/api/v1/me');
+            ->get($host . '/api/v1/me');
 
         if (! $userResponse->successful()) {
-            return redirect('/login')->withErrors(['oauth' => 'Failed retrieving profile from CentraFlow.']);
+            return redirect()->route('login')->withErrors(['oauth' => 'Failed retrieving profile from CentraFlow.']);
         }
 
-        $profile = $userResponse->json('data');
+        $profile = $userResponse->json('data') ?? $userResponse->json();
 
-        // Role mapping from CentraFlow to HRMS
+        // FR-HRMS-01: Access Control Guard
+        $systemKey = config('services.centraflow.system_key', 'hrms');
+        $clearance = $profile['access_control'][$systemKey] ?? null;
+        if (! $clearance || ! ($clearance['allowed'] ?? false)) {
+            return redirect()->route('login')->withErrors([
+                'oauth' => 'Access Denied: You do not have permission to access the PulseHR portal. Contact your CentraFlow administrator.'
+            ]);
+        }
+
+        // FR-HRMS-02: Role Resolution (prefer access_control.hrms.role, then subsystem_roles.hrms, then fallback)
         $roleMap = [
             'superadmin'         => 'Super Admin',
             'hr_manager'         => 'HR Administrator',
@@ -84,46 +112,36 @@ class CentraFlowSsoClientController extends Controller
             'finance_officer'    => 'Employee',
             'employee'           => 'Employee',
         ];
-        $mappedRole = $profile['hrms_role'] ?? ($roleMap[$profile['role'] ?? ''] ?? ($profile['role'] ?? 'Employee'));
+        $resolvedRole = $clearance['role'] 
+            ?? ($profile['subsystem_roles']['hrms'] 
+            ?? ($roleMap[$profile['role'] ?? ''] ?? 'Employee'));
 
-        // 4. Find or provision user in local sub-system database
+        // FR-HRMS-03: Just-In-Time (JIT) Staff Profile Synchronization (Standardized across all 3 sub-systems)
         $user = User::firstOrNew(['email' => $profile['email']]);
+        $user->name = $profile['name'] ?? 'CentraFlow User';
+        $user->employee_code = $profile['employee_code'] ?? ($profile['staff_id'] ?? $user->employee_code); // Synced from CentraFlow staff_id / employee_code
+        $user->designation = $profile['designation'] ?? ($profile['job_title'] ?? $user->designation); // Synced from CentraFlow job_title / designation
+        $user->job_title = $profile['job_title'] ?? ($profile['designation'] ?? $user->job_title);
+        $user->department = $profile['department'] ?? $user->department;
+        $user->phone = $profile['phone'] ?? $user->phone;
+        $user->status = ($profile['status'] ?? 'active') === 'active' ? 'active' : 'inactive';
+        $user->role = $clearance['role'] ?? ($resolvedRole ?? 'Employee');
+        $user->centraflow_uuid = $profile['uuid'] ?? null;
+
         if (! $user->exists) {
-            $user->name = $profile['name'] ?? 'CentraFlow User';
             $user->password = bcrypt(Str::random(32));
-            $user->role = $mappedRole;
-            $user->department = $profile['department'] ?? null;
-            $user->job_title = $profile['job_title'] ?? null;
-            $user->employee_code = $profile['employee_code'] ?? null;
-            $user->save();
-        } else {
-            $user->name = $profile['name'] ?? $user->name;
-            if (!empty($mappedRole) && $user->role === 'Employee') {
-                $user->role = $mappedRole;
-            }
-            if (!empty($profile['department'])) {
-                $user->department = $profile['department'];
-            }
-            if (!empty($profile['job_title'])) {
-                $user->job_title = $profile['job_title'];
-            }
-            if (!empty($profile['employee_code'])) {
-                $user->employee_code = $profile['employee_code'];
-            }
-            $user->save();
         }
 
-        // Optional: Save CentraFlow UUID or role if column exists
-        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'centraflow_uuid')) {
-            $user->centraflow_uuid = $profile['uuid'];
-            $user->save();
-        }
+        $user->save();
 
-        // 5. Authenticate user into local session (no permanent remember-me cookie)
-        Auth::login($user, false);
-
-        // Store token in session if sub-system needs to call CentraFlow APIs
+        // FR-HRMS-04: Session Permissions and Central Token Caching
+        $request->session()->put('centraflow_token', $accessToken);
+        $request->session()->put('centraflow_token_id', $tokenPayload['token_id'] ?? null);
         $request->session()->put('centraflow_access_token', $accessToken);
+        $request->session()->put('centraflow_permissions', $clearance['permissions'] ?? []);
+
+        // 5. Authenticate user into local session (true to remember session)
+        Auth::login($user, true);
 
         return redirect()->intended('/dashboard');
     }

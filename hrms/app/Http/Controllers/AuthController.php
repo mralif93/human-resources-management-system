@@ -69,15 +69,26 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        $tokenId = $request->session()->get('centraflow_token_id');
+
         Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         // Central Single Sign-Out (SLO): Terminate CentraFlow session and return to HRMS login
-        $centraflowHost = rtrim(config('services.centraflow.host', env('CENTRAFLOW_HOST', 'http://localhost:8004')), '/');
-        $returnUrl = url('/login?logged_out=1');
+        $centraflowHost = rtrim(config('services.centraflow.url', config('services.centraflow.host', env('CENTRAFLOW_HOST', 'http://localhost:8004'))), '/');
+        $returnUrl = route('login', ['logged_out' => '1']);
 
-        return redirect()->away($centraflowHost . '/logout?redirect_uri=' . urlencode($returnUrl));
+        if (! empty($centraflowHost)) {
+            $params = ['redirect_uri' => $returnUrl];
+            if ($tokenId) {
+                $params['token_id'] = $tokenId;
+            }
+
+            return redirect()->away($centraflowHost . '/logout?' . http_build_query($params));
+        }
+
+        return redirect()->route('login')->with('status', 'You have been logged out securely.');
     }
 }

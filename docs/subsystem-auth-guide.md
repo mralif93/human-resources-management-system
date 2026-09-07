@@ -277,14 +277,25 @@ When a user logs out of a sub-system (such as HRMS), it triggers a unified Centr
 
 ### SLO Workflow
 1. User clicks **"Sign Out Console"** in the sub-system.
-2. Sub-system destroys local user session, clears remember cookies, and regenerates CSRF token.
+2. Sub-system destroys local user session, clears remember cookies, retrieves `centraflow_token_id` (if available), and regenerates CSRF token.
 3. Sub-system initiates a redirect to CentraFlow:
    ```
-   GET http://localhost:8004/logout?redirect_uri=http://localhost:8001/login?logged_out=1
+   GET http://localhost:8004/logout?redirect_uri=http://localhost:8001/login?logged_out=1&token_id={OAUTH_TOKEN_ID}
    ```
-4. CentraFlow invalidates the central session, expires the master web session cookie, and redirects the browser back to `redirect_uri`.
+4. CentraFlow revokes the OAuth token, invalidates the central session, expires the master web session cookie (`centraflow_session`), and redirects the browser back to `redirect_uri`.
 5. The sub-system displays a secure dismissible alert confirming:
    > *"You have been logged out securely."*
+
+---
+
+## 7. Active Session Auto-Revalidation (Idle / Revoked Detection)
+
+Per Section 5 of the Enterprise Federated Session Management Guide (`docs/federated-session-management-guide.md`), PulseHR includes an active session re-validation middleware: `EnsureCentraFlowSessionValid` (`cf.session`).
+
+### How It Works
+- Periodically (cached for 10 minutes per token hash) pings `GET /api/v1/me` with Bearer `centraflow_token`.
+- If an enterprise administrator in CentraFlow revokes the user's active session or tokens, or suspends the user, subsequent requests to PulseHR detect HTTP 401 or token revocation.
+- The sub-system automatically terminates the local session, clears user state, and bounces the user back to the login screen with an enterprise alert banner.
 
 ```
 +---------------+               +-----------------+

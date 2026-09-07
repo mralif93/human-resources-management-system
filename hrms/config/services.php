@@ -36,11 +36,14 @@ return [
     ],
 
     'centraflow' => [
-        'host'          => env('CENTRAFLOW_HOST', 'http://localhost:8004'),
+        'url'           => env('CENTRAFLOW_URL', env('CENTRAFLOW_HOST', 'http://localhost:8004')),
+        'host'          => env('CENTRAFLOW_HOST', env('CENTRAFLOW_URL', 'http://localhost:8004')),
         'client_id'     => env('CENTRAFLOW_CLIENT_ID'),
         'client_secret' => env('CENTRAFLOW_CLIENT_SECRET'),
         'redirect_uri'  => env('CENTRAFLOW_REDIRECT_URI'),
-        'scopes'        => env('CENTRAFLOW_SCOPES'),
+        'scopes'        => env('CENTRAFLOW_SCOPES', 'hrms:read hrms:write'),
+        'scope'         => env('CENTRAFLOW_SCOPES', 'hrms:read hrms:write'),
+        'system_key'    => 'hrms',
     ],
 
 ];

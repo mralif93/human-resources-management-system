@@ -40,10 +40,10 @@
                 </div>
             @endif
 
-            @if($errors->has('oauth'))
+            @if($errors->has('oauth') || $errors->has('email'))
                 <div class="mb-6 p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2 text-left">
                     <i class="bx bx-error-circle text-lg shrink-0"></i>
-                    <span>{{ $errors->first('oauth') }}</span>
+                    <span>{{ $errors->first('oauth') ?: $errors->first('email') }}</span>
                 </div>
             @endif
 
