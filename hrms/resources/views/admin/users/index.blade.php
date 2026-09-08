@@ -30,14 +30,14 @@
                         <div class="w-9 h-9 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-indigo-300 font-bold text-base shadow-xs">
                             <i class="bx bx-user-pin"></i>
                         </div>
-                        <h1 class="text-xl sm:text-2xl font-black text-white tracking-tight">Staff &amp; Identity Management</h1>
+                        <h1 class="text-xl sm:text-2xl font-black text-white tracking-tight">System User &amp; Identity Governance</h1>
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 inline-flex items-center gap-1.5 backdrop-blur-xs">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            {{ $stats['active_users'] }} Active Staff
+                            {{ $stats['active_users'] }} Active Accounts
                         </span>
                     </div>
                     <p class="text-xs sm:text-sm text-indigo-100/80 leading-relaxed">
-                        Manage clinical credentials, doctor and cashier assignments, multi-role RBAC permissions, and account access status.
+                        Centrally manage enterprise personnel logins, multi-role RBAC authorization, security credential resets, and account lifecycle state.
                     </p>
                 </div>
 
@@ -55,7 +55,7 @@
                         class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 border border-indigo-500/30 transition flex items-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
                     >
                         <i class="bx bx-user-plus text-base"></i>
-                        <span>Register Staff Account</span>
+                        <span>Register User Account</span>
                     </button>
                 </div>
             </div>
@@ -64,32 +64,32 @@
         <!-- Metric KPI Highlights -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <x-stat-card 
-                title="Total Personnel"
+                title="Total Accounts"
                 value="{{ $stats['total_users'] }}"
                 icon="bx bx-group"
                 color="indigo"
-                subtitle="Registered clinic accounts"
+                subtitle="Registered user accounts"
             />
             <x-stat-card 
                 title="Active Personnel"
                 value="{{ $stats['active_users'] }}"
                 icon="bx bx-check-shield"
                 color="emerald"
-                subtitle="Operational station access"
+                subtitle="Operational access enabled"
             />
             <x-stat-card 
-                title="Clinical Administrators"
+                title="Privileged Admins"
                 value="{{ $stats['admins'] }}"
                 icon="bx bx-crown"
                 color="purple"
-                subtitle="Doctors & Practice Directors"
+                subtitle="Super & HR Administrators"
             />
             <x-stat-card 
                 title="Suspended Accounts"
                 value="{{ $stats['suspended'] }}"
                 icon="bx bx-block"
                 color="rose"
-                subtitle="Locked or deactivated accounts"
+                subtitle="Locked or deactivated users"
             />
         </div>
 
@@ -103,7 +103,7 @@
                         type="text" 
                         name="search" 
                         value="{{ request('search') }}" 
-                        placeholder="Search by name, email, staff ID, or designation..." 
+                        placeholder="Search by name, email, employee code, or phone..." 
                         class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/90 text-slate-900 dark:text-white placeholder:text-slate-400 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
                     >
                 </div>
@@ -156,8 +156,8 @@
                 <table class="w-full text-left text-xs">
                     <thead class="bg-slate-50 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
                         <tr>
-                            <th class="py-3.5 px-4 sm:px-6">Staff Personnel</th>
-                            <th class="py-3.5 px-4">Staff ID / Code</th>
+                            <th class="py-3.5 px-4 sm:px-6">User Account</th>
+                            <th class="py-3.5 px-4">Employee Code</th>
                             <th class="py-3.5 px-4">Assigned Roles</th>
                             <th class="py-3.5 px-4">Department &amp; Title</th>
                             <th class="py-3.5 px-4 text-center">Status</th>
@@ -175,7 +175,9 @@
                                         </div>
                                         <div class="min-w-0">
                                             <div class="font-bold text-slate-900 dark:text-white truncate flex items-center gap-1.5">
-                                                <span>{{ $user->name }}</span>
+                                                <a href="{{ route('users.show', $user) }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition hover:underline">
+                                                    {{ $user->name }}
+                                                </a>
                                                 @if($user->id === auth()->id())
                                                     <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-800">You</span>
                                                 @endif
@@ -185,13 +187,13 @@
                                     </div>
                                 </td>
 
-                                <!-- Staff ID / Code -->
+                                <!-- Employee Code -->
                                 <td class="py-4 px-4">
                                     <div class="font-mono font-bold text-slate-800 dark:text-slate-200">
-                                        {{ $user->staff_id ?? '—' }}
+                                        {{ $user->employee_code ?? '—' }}
                                     </div>
-                                    @if($user->employee_code)
-                                        <div class="text-[10px] text-slate-400 font-mono">{{ $user->employee_code }}</div>
+                                    @if($user->phone)
+                                        <div class="text-[10px] text-slate-400 font-mono">{{ $user->phone }}</div>
                                     @endif
                                 </td>
 
@@ -213,10 +215,10 @@
                                 <!-- Department & Designation -->
                                 <td class="py-4 px-4">
                                     <div class="font-medium text-slate-800 dark:text-slate-200 truncate max-w-[180px]">
-                                        {{ $user->designation ?? 'Clinical Staff' }}
+                                        {{ $user->job_title ?? ($user->designation ?? 'Team Member') }}
                                     </div>
                                     <div class="text-[11px] text-slate-400 truncate max-w-[180px]">
-                                        {{ $user->department ?? 'General Operations' }}
+                                        {{ $user->department ?? 'General' }}
                                     </div>
                                 </td>
 
@@ -242,12 +244,21 @@
                                 <!-- Actions Suite -->
                                 <td class="py-4 px-4 sm:px-6 text-right">
                                     <div class="inline-flex items-center gap-1.5 justify-end">
+                                        <!-- View User Details (Show) -->
+                                        <a 
+                                            href="{{ route('users.show', $user) }}"
+                                            class="p-2 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 dark:hover:text-indigo-400 transition cursor-pointer"
+                                            title="View User Dossier"
+                                        >
+                                            <i class="bx bx-show text-base"></i>
+                                        </a>
+
                                         <!-- Edit Modal Trigger -->
                                         <button 
                                             type="button" 
                                             onclick='openEditUserModal(@json($user), @json($user->roles->pluck("id")))'
                                             class="p-2 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 dark:hover:text-indigo-400 transition cursor-pointer"
-                                            title="Edit Staff User"
+                                            title="Edit User Account"
                                         >
                                             <i class="bx bx-edit text-base"></i>
                                         </button>
@@ -277,7 +288,7 @@
                                             </form>
 
                                             <!-- Delete User -->
-                                            <form method="POST" action="{{ route('users.destroy', $user) }}" class="inline" onsubmit="return confirm('Permanently delete staff account for {{ addslashes($user->name) }}? This action cannot be undone.')">
+                                            <form method="POST" action="{{ route('users.destroy', $user) }}" class="inline" onsubmit="return confirm('Permanently delete user account for {{ addslashes($user->name) }}? This action cannot be undone.')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button 
@@ -316,28 +327,27 @@
     </div>
 
     <!-- CREATE USER MODAL -->
-    <x-modal name="create-user" title="Register New Clinic Staff Account" size="lg">
+    <x-modal name="create-user" title="Register New User Account" size="lg">
         <form method="POST" action="{{ route('users.store') }}" class="p-6 space-y-4 text-left">
             @csrf
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <x-input label="Full Name" name="name" required placeholder="e.g. Dr. Emily Wong" />
-                <x-input label="Official Work Email" name="email" type="email" required placeholder="doctor@clinic.my" />
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <x-input label="Clinic Staff ID" name="staff_id" placeholder="e.g. DOC-003" />
-                <x-input label="Employee Code" name="employee_code" placeholder="e.g. EMP-105" />
-                <x-input label="Phone Number" name="phone" placeholder="+60123456789" />
+                <x-input label="Full Legal Name" name="name" required placeholder="e.g. Rachel Adams" />
+                <x-input label="Work Email Address" name="email" type="email" required placeholder="rachel.a@hrms.test" />
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <x-input label="Department" name="department" placeholder="e.g. Clinical Consultations" />
-                <x-input label="Job Title / Designation" name="designation" placeholder="e.g. General Practitioner" />
+                <x-input label="Employee Code (Optional)" name="employee_code" placeholder="e.g. EMP-2026-0005" />
+                <x-input label="Phone Number" name="phone" placeholder="+60 12-345 6789" />
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <x-input label="Initial Password" name="password" type="password" required placeholder="Minimum 6 characters" />
+                <x-input label="Department" name="department" placeholder="e.g. Human Resources" />
+                <x-input label="Job Title / Designation" name="job_title" placeholder="e.g. Talent Acquisition Lead" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-input label="Account Initial Password" name="password" type="password" required placeholder="Minimum 8 characters" />
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
                         Account Access Status
@@ -353,7 +363,7 @@
             <!-- Role Selection -->
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-                    Assign Access Roles
+                    Assign Access Roles (RBAC)
                 </label>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 max-h-48 overflow-y-auto">
                     @foreach($roles as $role)
@@ -373,32 +383,31 @@
                     Cancel
                 </x-button>
                 <x-button variant="primary" size="sm" type="submit">
-                    Create Staff Account
+                    Create User Account
                 </x-button>
             </div>
         </form>
     </x-modal>
 
     <!-- EDIT USER MODAL -->
-    <x-modal name="edit-user" title="Edit Staff User Profile &amp; Permissions" size="lg">
+    <x-modal name="edit-user" title="Edit User Profile &amp; Role Permissions" size="lg">
         <form id="edit-user-form" method="POST" action="" class="p-6 space-y-4 text-left">
             @csrf
             @method('PUT')
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <x-input label="Full Name" name="name" id="edit-user-name" required />
-                <x-input label="Official Work Email" name="email" id="edit-user-email" type="email" required />
+                <x-input label="Full Legal Name" name="name" id="edit-user-name" required />
+                <x-input label="Work Email Address" name="email" id="edit-user-email" type="email" required />
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <x-input label="Clinic Staff ID" name="staff_id" id="edit-user-staff-id" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-input label="Employee Code" name="employee_code" id="edit-user-employee-code" />
                 <x-input label="Phone Number" name="phone" id="edit-user-phone" />
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-input label="Department" name="department" id="edit-user-department" />
-                <x-input label="Job Title / Designation" name="designation" id="edit-user-designation" />
+                <x-input label="Job Title / Designation" name="job_title" id="edit-user-job-title" />
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -418,7 +427,7 @@
             <!-- Role Selection -->
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-                    Assign Access Roles
+                    Assign Access Roles (RBAC)
                 </label>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 max-h-48 overflow-y-auto">
                     @foreach($roles as $role)
@@ -475,11 +484,10 @@
 
             document.getElementById('edit-user-name').value = user.name || '';
             document.getElementById('edit-user-email').value = user.email || '';
-            document.getElementById('edit-user-staff-id').value = user.staff_id || '';
             document.getElementById('edit-user-employee-code').value = user.employee_code || '';
             document.getElementById('edit-user-phone').value = user.phone || '';
             document.getElementById('edit-user-department').value = user.department || '';
-            document.getElementById('edit-user-designation').value = user.designation || '';
+            document.getElementById('edit-user-job-title').value = user.job_title || user.designation || '';
             document.getElementById('edit-user-status').value = user.status || 'active';
 
             const checkboxes = document.querySelectorAll('.edit-role-checkbox');

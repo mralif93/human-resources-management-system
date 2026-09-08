@@ -40,6 +40,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Associated Employee Master Profile (if linked)
+     */
+    public function employee(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Employee::class);
+    }
+
+    /**
      * Dynamic role attribute for backward compatibility with existing Blade layouts and views.
      * Returns the assigned role display_name or fallback to stored/default role.
      */

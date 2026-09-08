@@ -42,7 +42,7 @@
 
                 <div class="flex items-center gap-2.5 sm:gap-3 flex-wrap shrink-0">
                     <a 
-                        href="{{ route('admin.users.index') }}" 
+                        href="{{ route('users.index') }}" 
                         class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold border border-white/20 transition flex items-center gap-2 cursor-pointer"
                     >
                         <i class="bx bx-user-pin text-base text-purple-300"></i>

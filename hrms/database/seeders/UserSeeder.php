@@ -48,6 +48,12 @@ class UserSeeder extends Seeder
             // Audit Trail Module
             ['name' => 'audit.view', 'display_name' => 'Inspect Security Audit Trails', 'module' => 'audit'],
 
+            // Access Control & Identity Governance Module
+            ['name' => 'users.view', 'display_name' => 'View System User Accounts & Roles', 'module' => 'users'],
+            ['name' => 'users.create', 'display_name' => 'Create New System User Account', 'module' => 'users'],
+            ['name' => 'users.edit', 'display_name' => 'Modify System User Profile & Roles', 'module' => 'users'],
+            ['name' => 'users.delete', 'display_name' => 'Delete or Deactivate System User Account', 'module' => 'users'],
+
             // Company Settings & Governance Module
             ['name' => 'settings.view', 'display_name' => 'View Organization Settings', 'module' => 'settings'],
             ['name' => 'settings.edit', 'display_name' => 'Modify Company & Template Settings', 'module' => 'settings'],
@@ -85,6 +91,7 @@ class UserSeeder extends Seeder
                 'recruitment.view', 'recruitment.manage',
                 'payroll.view', 'payroll.export',
                 'audit.view',
+                'users.view', 'users.create', 'users.edit', 'users.delete',
                 'settings.view',
             ])->pluck('id')
         );

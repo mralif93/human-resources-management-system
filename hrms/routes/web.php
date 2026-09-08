@@ -95,7 +95,7 @@ Route::middleware('auth')->group(function () {
 
     // Access Control & Identity Governance - Super Admin & HR Admin
     Route::middleware('role:Super Admin,HR Administrator')->group(function () {
-        Route::resource('users', \App\Http\Controllers\UserController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('users', \App\Http\Controllers\UserController::class);
         Route::post('/users/{user}/toggle-status', [\App\Http\Controllers\UserController::class, 'toggleStatus'])->name('users.toggle-status');
         Route::post('/users/{user}/reset-password', [\App\Http\Controllers\UserController::class, 'resetPassword'])->name('users.reset-password');
         Route::resource('roles', \App\Http\Controllers\RoleController::class)->only(['index', 'store', 'update', 'destroy']);

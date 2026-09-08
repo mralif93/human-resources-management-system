@@ -53,6 +53,57 @@ class UserController extends Controller
     }
 
     /**
+     * Show the form for creating a new user (fallback if accessed directly without modal).
+     */
+    public function create(): View
+    {
+        $roles = Role::orderBy('name')->get();
+        return view('admin.users.create', compact('roles'));
+    }
+
+    /**
+     * Display the specified user profile, RBAC roles, permissions, and audit activity.
+     */
+    public function show(User $user, Request $request): View|\Illuminate\Http\JsonResponse
+    {
+        $user->load(['roles.permissions', 'employee.department', 'employee.designation']);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'user' => $user,
+                'role_ids' => $user->roles->pluck('id'),
+                'roles' => $user->roles,
+                'employee' => $user->employee,
+            ]);
+        }
+
+        $auditLogs = AuditLog::where('user_id', $user->id)
+            ->latest('created_at')
+            ->take(15)
+            ->get();
+
+        return view('admin.users.show', compact('user', 'auditLogs'));
+    }
+
+    /**
+     * Show the form for editing the specified user (fallback or modal support).
+     */
+    public function edit(User $user, Request $request): View|\Illuminate\Http\JsonResponse
+    {
+        $user->load('roles');
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'user' => $user,
+                'role_ids' => $user->roles->pluck('id'),
+            ]);
+        }
+
+        $roles = Role::orderBy('name')->get();
+        return view('admin.users.edit', compact('user', 'roles'));
+    }
+
+    /**
      * Store a newly created system user with assigned roles.
      */
     public function store(Request $request): RedirectResponse
@@ -64,6 +115,7 @@ class UserController extends Controller
             'phone' => ['nullable', 'string', 'max:30'],
             'department' => ['nullable', 'string', 'max:100'],
             'job_title' => ['nullable', 'string', 'max:100'],
+            'designation' => ['nullable', 'string', 'max:100'],
             'password' => ['required', 'string', 'min:8'],
             'status' => ['required', 'in:active,inactive,suspended'],
             'role_ids' => ['nullable', 'array'],
@@ -80,6 +132,7 @@ class UserController extends Controller
             'phone' => $validated['phone'] ?? null,
             'department' => $validated['department'] ?? null,
             'job_title' => $validated['job_title'] ?? null,
+            'designation' => $validated['designation'] ?? ($validated['job_title'] ?? null),
             'role' => $primaryRole ?? 'Employee',
             'password' => Hash::make($validated['password']),
             'status' => $validated['status'] ?? 'active',
@@ -119,6 +172,7 @@ class UserController extends Controller
             'phone' => ['nullable', 'string', 'max:30'],
             'department' => ['nullable', 'string', 'max:100'],
             'job_title' => ['nullable', 'string', 'max:100'],
+            'designation' => ['nullable', 'string', 'max:100'],
             'password' => ['nullable', 'string', 'min:8'],
             'status' => ['required', 'in:active,inactive,suspended'],
             'role_ids' => ['nullable', 'array'],
@@ -131,6 +185,7 @@ class UserController extends Controller
         $user->phone = $validated['phone'] ?? null;
         $user->department = $validated['department'] ?? $user->department;
         $user->job_title = $validated['job_title'] ?? $user->job_title;
+        $user->designation = $validated['designation'] ?? ($validated['job_title'] ?? $user->designation);
         $user->status = $validated['status'];
 
         if (!empty($validated['role_ids'])) {
