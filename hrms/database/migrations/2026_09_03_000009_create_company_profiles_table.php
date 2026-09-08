@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * Company Profile & Corporate HR Defaults
+     * Module 9: Corporate Company Profile, Geofencing & Template Customization.
      */
     public function up(): void
     {
@@ -20,6 +20,12 @@ return new class extends Migration
             $table->string('email')->default('hr@pulsehr.my');
             $table->string('website')->default('https://pulsehr.my');
             $table->text('address')->nullable();
+
+            // Dynamic Geofence Parameters (REQ-ATT-01)
+            $table->decimal('office_latitude', 10, 7)->default(3.1390000);
+            $table->decimal('office_longitude', 10, 7)->default(101.6869000);
+            $table->unsignedInteger('geofence_radius_meters')->default(100);
+
             $table->string('logo_path')->nullable();
             $table->string('currency_symbol')->default('MYR');
             $table->unsignedSmallInteger('default_probation_months')->default(3);
@@ -27,7 +33,15 @@ return new class extends Migration
             $table->unsignedSmallInteger('default_annual_leave_days')->default(14);
             $table->string('hr_director_name')->default('Datuk Seri Dr. Ariff Rahman');
             $table->string('hr_director_title')->default('Chief Human Resources Officer');
+            $table->string('signature_path')->nullable();
             $table->text('contract_terms')->nullable();
+
+            // Offer Letter Template Customization (REQ-ATS-03)
+            $table->string('offer_letter_subject')->default('Conditional Letter of Employment Offer');
+            $table->text('offer_letter_intro')->nullable();
+            $table->text('offer_letter_benefits')->nullable();
+            $table->unsignedSmallInteger('offer_validity_days')->default(5);
+
             $table->timestamps();
         });
     }

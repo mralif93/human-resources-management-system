@@ -8,6 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     * Module 1: Authentication, User Accounts & Session Security.
      */
     public function up(): void
     {
@@ -18,9 +19,11 @@ return new class extends Migration
             $table->string('role')->default('Employee'); // Super Admin, HR Administrator, Department Manager, Employee
             $table->string('department')->nullable();
             $table->string('job_title')->nullable();
+            $table->string('designation')->nullable();
             $table->string('employee_code')->nullable()->unique();
             $table->string('avatar')->nullable();
             $table->string('phone')->nullable();
+            $table->string('status')->default('active'); // active, inactive, suspended
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
@@ -48,8 +51,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };

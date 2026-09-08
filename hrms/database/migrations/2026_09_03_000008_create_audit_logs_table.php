@@ -8,6 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     * Module 8: Activity Audit Trail & Enterprise Security Logs.
      */
     public function up(): void
     {

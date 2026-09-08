@@ -8,9 +8,32 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     * Module 2: Personnel Information Management (PIM) & Organizational Taxonomy.
      */
     public function up(): void
     {
+        // 1. Departments Taxonomy
+        Schema::create('departments', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('code')->unique();
+            $table->text('description')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->foreignId('manager_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamps();
+        });
+
+        // 2. Designations Taxonomy
+        Schema::create('designations', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('department_id')->constrained('departments')->cascadeOnDelete();
+            $table->string('title');
+            $table->string('code')->unique();
+            $table->text('description')->nullable();
+            $table->timestamps();
+        });
+
+        // 3. Employee Master Vault
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
@@ -53,5 +76,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('employees');
+        Schema::dropIfExists('designations');
+        Schema::dropIfExists('departments');
     }
 };
