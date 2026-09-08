@@ -130,7 +130,7 @@
                     <i class="bx bx-target-lock text-lg {{ request()->routeIs('performance.*') ? 'text-white' : 'text-purple-500' }}"></i>
                     <span>OKRs &amp; Appraisals</span>
                 </a>
-                @if(auth()->user()->isSuperAdmin() || auth()->user()->isHrAdmin() || auth()->user()->isManager())
+                @if(auth()->user()?->isSuperAdmin() || auth()->user()?->isHrAdmin() || auth()->user()?->isManager())
                 <a href="{{ route('recruitment.index') }}" class="flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold transition {{ request()->routeIs('recruitment.*') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white' }}">
                     <div class="flex items-center gap-3">
                         <i class="bx bx-briefcase text-lg {{ request()->routeIs('recruitment.*') ? 'text-white' : 'text-sky-500' }}"></i>

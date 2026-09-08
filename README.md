@@ -67,7 +67,7 @@ Includes interactive client-side sandboxes for:
 
 | # | Module | Key Features & Capabilities |
 |---|---|---|
-| **01** | **Authentication & Central SSO** | SSO-only authentication backed by **CentraFlow** (OAuth 2.0 Authorization Code Grant), automated role mapping, Central Single Sign-Out (SLO), and activity audit trail. |
+| **01** | **Authentication & Security** | Corporate credentials authentication with remember tokens, role-based access control (RBAC), Quick Role Profiles switcher, and activity audit trail. |
 | **02** | **Personnel Information (PIM)** | Unique auto-generated ID (`EMP-YYYY-XXXX`), AES-256 encrypted documents, visual department org tree. |
 | **03** | **Attendance & Shifts** | HTML5 Geolocation validation (100m radius), rotational shifts, grace periods, OT multiplier. |
 | **04** | **Leave & Absence** | Pro-rated accrual engine, multi-level routing (Manager &rarr; HR), blackout overlap guard. |
@@ -121,10 +121,11 @@ npm run dev
 php artisan serve --port=8001
 ```
 
-Authentication is centrally governed via **CentraFlow SSO** (`http://localhost:8004`). Pre-registered demo credentials on CentraFlow:
-- **HR Manager:** `hrmanager@centraflow.local` / `password` (maps to HR Administrator)
-- **Super Administrator:** `admin@centraflow.local` / `password` (maps to Super Admin)
-- **Staff Employee:** `john.doe@centraflow.local` / `password` (maps to Employee)
+Pre-configured demo credentials (password: `password`):
+- **Super Administrator:** `admin@hrms.test` (Full Access)
+- **HR Administrator:** `hr@hrms.test` (PIM, Leaves, Recruitment, Payroll Feeder)
+- **Department Manager:** `manager@hrms.test` (Team Approvals, OKRs, ATS Interviewer)
+- **General Employee:** `employee@hrms.test` (Self Attendance, Leave Requests)
 
 ---
 

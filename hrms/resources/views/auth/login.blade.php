@@ -7,10 +7,10 @@
     <div class="w-full max-w-[440px] animate__animated animate__fadeInUp animate__faster">
         
         <!-- Card Container -->
-        <div class="bg-white dark:bg-slate-900 rounded-[2.25rem] border border-slate-200/80 dark:border-slate-800 shadow-[0_25px_60px_-15px_rgba(99,102,241,0.18)] p-8 sm:p-10 transition-all text-center">
+        <div class="bg-white dark:bg-slate-900 rounded-[2.25rem] border border-slate-200/80 dark:border-slate-800 shadow-[0_25px_60px_-15px_rgba(99,102,241,0.18)] p-8 sm:p-10 transition-all text-left">
             
             <!-- Header Icon & Brand -->
-            <div class="flex flex-col items-center mb-6">
+            <div class="flex flex-col items-center text-center mb-8">
                 <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-b from-indigo-500 via-indigo-600 to-blue-600 text-white shadow-[0_12px_24px_-4px_rgba(99,102,241,0.4)] mb-4">
                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M21 7.28V5c0-1.1-.9-2-2-2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-2.28c.59-.35 1-.98 1-1.72V9c0-.74-.41-1.37-1-1.72zM20 9v6h-7V9h7zM5 19V5h14v2h-6c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h6v2H5z"/>
@@ -23,7 +23,7 @@
                 </p>
             </div>
 
-            <!-- Dismissible Logout Alert Banner (Pixel-matched to design) -->
+            <!-- Dismissible Logout Alert Banner -->
             @if(session('status') || request()->has('logged_out'))
                 <div id="logout-alert" class="mb-6 px-4 py-3.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800/80 text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between gap-3 animate__animated animate__fadeIn">
                     <div class="flex items-center gap-2.5 text-left">
@@ -40,47 +40,131 @@
                 </div>
             @endif
 
-            @if($errors->has('oauth') || $errors->has('email'))
-                <div class="mb-6 p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2 text-left">
-                    <i class="bx bx-error-circle text-lg shrink-0"></i>
-                    <span>{{ $errors->first('oauth') ?: $errors->first('email') }}</span>
-                </div>
-            @endif
+            <!-- Form -->
+            <form action="{{ route('login.post') }}" method="POST" class="space-y-5">
+                @csrf
 
-            <!-- Info Container Card (Enterprise Identity Protection) -->
-            <div class="p-6 rounded-3xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 mb-6 text-center space-y-2">
-                <div class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-indigo-100/70 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 mb-1">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 2.18l6 2.25v4.66c0 4.1-2.6 7.9-6 8.91-3.4-1.01-6-4.81-6-8.91V6.43l6-2.25z"/>
-                        <path d="M12 7c-1.1 0-2 .9-2 2v2H9v5h6v-5h-1V9c0-1.1-.9-2-2-2zm-1 4V9c0-.55.45-1 1-1s1 .45 1 1v2h-2z"/>
-                    </svg>
+                <!-- Email Input -->
+                <div>
+                    <label for="email" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                        Work Email Address
+                    </label>
+                    <div class="relative rounded-xl shadow-xs">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-lg">
+                            <i class="bx bx-envelope"></i>
+                        </div>
+                        <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            required
+                            value="{{ old('email', 'admin@hrms.test') }}"
+                            autocomplete="email"
+                            placeholder="user@hrms.test"
+                            class="block w-full pl-10 pr-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/80 focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white placeholder:text-slate-400 transition-all outline-none"
+                        >
+                    </div>
+                    @error('email')
+                        <p class="mt-1.5 text-xs text-rose-600 font-medium flex items-center gap-1">
+                            <i class="bx bx-error-circle"></i>
+                            {{ $message }}
+                        </p>
+                    @enderror
                 </div>
-                <h2 class="text-xs font-bold text-slate-900 dark:text-white tracking-tight">
-                    Enterprise Identity Protection Enforced
-                </h2>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed max-w-[280px] mx-auto font-normal">
-                    Authentication for PulseHR is centrally managed by CentraFlow Identity Hub. Click below to sign in with your corporate credentials.
+
+                <!-- Password Input -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label for="password" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                            Password
+                        </label>
+                        <a href="{{ route('password.request') }}" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline transition-colors">
+                            Forgot password?
+                        </a>
+                    </div>
+                    <div class="relative rounded-xl shadow-xs">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-lg">
+                            <i class="bx bx-lock-alt"></i>
+                        </div>
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            required
+                            value="password"
+                            autocomplete="current-password"
+                            placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                            class="block w-full pl-10 pr-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/80 focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white placeholder:text-slate-400 transition-all outline-none"
+                        >
+                    </div>
+                    @error('password')
+                        <p class="mt-1.5 text-xs text-rose-600 font-medium flex items-center gap-1">
+                            <i class="bx bx-error-circle"></i>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                <!-- Remember Me -->
+                <div class="flex items-center justify-between pt-1">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="remember" id="remember" class="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-xs font-medium text-slate-600 dark:text-slate-400">Remember credentials</span>
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button
+                    type="submit"
+                    class="w-full inline-flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/30 border border-indigo-500/30 active:scale-[0.99] transition-all cursor-pointer"
+                >
+                    <i class="bx bx-log-in text-lg"></i>
+                    <span>Authenticate &amp; Enter</span>
+                </button>
+            </form>
+
+            <!-- Quick Demo Credentials Switcher -->
+            <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3 text-center">
+                    Quick Role Profiles (Click to prefill)
                 </p>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <button type="button" onclick="fillCreds('admin@hrms.test')" class="p-2.5 text-left rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition-all cursor-pointer">
+                        <span class="font-bold block text-slate-900 dark:text-white flex items-center gap-1">
+                            <i class="bx bxs-badge-check text-indigo-600"></i> Admin
+                        </span>
+                        <span class="text-[10px] text-slate-400 block font-mono">admin@hrms.test</span>
+                    </button>
+                    <button type="button" onclick="fillCreds('hr@hrms.test')" class="p-2.5 text-left rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition-all cursor-pointer">
+                        <span class="font-bold block text-slate-900 dark:text-white flex items-center gap-1">
+                            <i class="bx bx-user-pin text-purple-600"></i> HR Admin
+                        </span>
+                        <span class="text-[10px] text-slate-400 block font-mono">hr@hrms.test</span>
+                    </button>
+                    <button type="button" onclick="fillCreds('manager@hrms.test')" class="p-2.5 text-left rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition-all cursor-pointer">
+                        <span class="font-bold block text-slate-900 dark:text-white flex items-center gap-1">
+                            <i class="bx bx-briefcase text-blue-600"></i> Manager
+                        </span>
+                        <span class="text-[10px] text-slate-400 block font-mono">manager@hrms.test</span>
+                    </button>
+                    <button type="button" onclick="fillCreds('employee@hrms.test')" class="p-2.5 text-left rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition-all cursor-pointer">
+                        <span class="font-bold block text-slate-900 dark:text-white flex items-center gap-1">
+                            <i class="bx bx-user text-amber-600"></i> Employee
+                        </span>
+                        <span class="text-[10px] text-slate-400 block font-mono">employee@hrms.test</span>
+                    </button>
+                </div>
             </div>
-
-            <!-- Sign in with CentraFlow SSO Button -->
-            <a href="{{ route('sso.login') }}" 
-               class="w-full inline-flex items-center justify-center gap-3 py-3.5 px-5 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 shadow-[0_12px_28px_-6px_rgba(79,70,229,0.5)] active:scale-[0.99] transition-all cursor-pointer">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-                </svg>
-                <span>Sign in with CentraFlow SSO</span>
-            </a>
-
-            <!-- Status Footer -->
-            <div class="pt-6 text-center">
-                <span class="text-[11px] text-slate-400 dark:text-slate-500 flex items-center justify-center gap-2 font-mono">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    CentraFlow OAuth 2.0 Server Active (:8004)
-                </span>
-            </div>
-
         </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function fillCreds(email) {
+    document.getElementById('email').value = email;
+    document.getElementById('password').value = 'password';
+}
+</script>
+@endpush

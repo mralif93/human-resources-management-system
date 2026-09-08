@@ -17,22 +17,43 @@ class AuthenticationTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Staff Portal Sign In');
-        $response->assertSee('Sign in with CentraFlow SSO');
-        $response->assertSee('Enterprise Identity Protection Enforced');
+        $response->assertSee('Work Email Address');
     }
 
-    public function test_sso_redirect_initiates_oauth_with_pkce(): void
+    public function test_user_can_authenticate_using_valid_credentials(): void
     {
-        $response = $this->get('/auth/centraflow');
+        $user = User::factory()->create([
+            'email' => 'admin@hrms.test',
+            'password' => Hash::make('password'),
+            'role' => 'Super Admin',
+        ]);
 
-        $response->assertStatus(302);
-        $this->assertStringContainsString('/oauth/authorize', $response->headers->get('Location'));
-        $this->assertStringContainsString('code_challenge=', $response->headers->get('Location'));
-        $this->assertNotNull(session('centraflow_oauth_state'));
-        $this->assertNotNull(session('centraflow_code_verifier'));
+        $response = $this->post('/login', [
+            'email' => 'admin@hrms.test',
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticatedAs($user);
+        $response->assertRedirect(route('dashboard'));
     }
 
-    public function test_authenticated_user_can_logout_via_federated_slo(): void
+    public function test_user_cannot_authenticate_with_invalid_password(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'admin@hrms.test',
+            'password' => Hash::make('password'),
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => 'admin@hrms.test',
+            'password' => 'wrong-password',
+        ]);
+
+        $this->assertGuest();
+        $response->assertSessionHasErrors('email');
+    }
+
+    public function test_authenticated_user_can_logout(): void
     {
         $user = User::factory()->create([
             'email' => 'admin@hrms.test',
@@ -41,9 +62,8 @@ class AuthenticationTest extends TestCase
         $response = $this->actingAs($user)->post('/logout');
 
         $this->assertGuest();
-        $response->assertStatus(302);
-        $this->assertStringContainsString('/logout?redirect_uri=', $response->headers->get('Location'));
-        $this->assertStringContainsString('logged_out%3D1', $response->headers->get('Location'));
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHas('status');
     }
 
     public function test_guest_cannot_access_protected_dashboard(): void
