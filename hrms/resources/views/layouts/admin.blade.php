@@ -170,6 +170,23 @@
             </div>
             @endif
 
+            <!-- Group: Access Control & Governance (Super Admin & HR Admin) -->
+            @if(auth()->user()?->isSuperAdmin() || auth()->user()?->isHrAdmin())
+            <div class="space-y-1">
+                <div class="px-3 pb-1 text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold">
+                    Access &amp; Security
+                </div>
+                <a href="{{ route('users.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition {{ request()->routeIs('users.*') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white' }}">
+                    <i class="bx bx-user text-lg {{ request()->routeIs('users.*') ? 'text-white' : 'text-indigo-500' }}"></i>
+                    <span>User Accounts</span>
+                </a>
+                <a href="{{ route('roles.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition {{ request()->routeIs('roles.*') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white' }}">
+                    <i class="bx bx-shield-quarter text-lg {{ request()->routeIs('roles.*') ? 'text-white' : 'text-purple-500' }}"></i>
+                    <span>Roles &amp; Permissions</span>
+                </a>
+            </div>
+            @endif
+
             <!-- Group 5: Organization & Settings (Super Admin & HR Admin) -->
             @if(auth()->user()?->isSuperAdmin() || auth()->user()?->isHrAdmin())
             <div class="space-y-1">

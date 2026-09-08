@@ -93,6 +93,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/audit-logs', [\App\Http\Controllers\AuditLogController::class, 'index'])->name('audit-logs.index');
     });
 
+    // Access Control & Identity Governance - Super Admin & HR Admin
+    Route::middleware('role:Super Admin,HR Administrator')->group(function () {
+        Route::resource('users', \App\Http\Controllers\UserController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::post('/users/{user}/toggle-status', [\App\Http\Controllers\UserController::class, 'toggleStatus'])->name('users.toggle-status');
+        Route::post('/users/{user}/reset-password', [\App\Http\Controllers\UserController::class, 'resetPassword'])->name('users.reset-password');
+        Route::resource('roles', \App\Http\Controllers\RoleController::class)->only(['index', 'store', 'update', 'destroy']);
+    });
+
     // Organization & Settings - Super Admin & HR Admin
     Route::middleware('role:Super Admin,HR Administrator')->group(function () {
         Route::get('/settings/profile', [\App\Http\Controllers\CompanyProfileController::class, 'edit'])->name('settings.profile');
