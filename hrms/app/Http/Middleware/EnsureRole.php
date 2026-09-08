@@ -22,13 +22,18 @@ class EnsureRole
             return redirect()->route('login');
         }
 
-        // If no specific roles requested or user has one of the allowed roles
-        if (empty($roles) || in_array($user->role, $roles, true)) {
+        // If no specific roles requested
+        if (empty($roles)) {
             return $next($request);
         }
 
         // Super Admin has universal access
-        if ($user->role === 'Super Admin') {
+        if ($user->isSuperAdmin()) {
+            return $next($request);
+        }
+
+        // Check if user has one of the allowed roles via RBAC or legacy attribute
+        if ($user->hasRole($roles) || in_array($user->role, $roles, true)) {
             return $next($request);
         }
 

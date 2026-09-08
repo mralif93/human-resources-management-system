@@ -3,10 +3,12 @@
 namespace Tests\Unit;
 
 use App\Models\User;
-use PHPUnit\Framework\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class UserRoleTest extends TestCase
 {
+    use RefreshDatabase;
     public function test_super_admin_role_check(): void
     {
         $user = new User(['role' => 'Super Admin']);
@@ -45,5 +47,36 @@ class UserRoleTest extends TestCase
         $this->assertFalse($user->isSuperAdmin());
         $this->assertFalse($user->isHrAdmin());
         $this->assertFalse($user->isManager());
+    }
+
+    public function test_role_and_permission_relationships(): void
+    {
+        $role = \App\Models\Role::create([
+            'name' => 'talent_scout',
+            'display_name' => 'Talent Scout',
+            'description' => 'Recruiter role',
+            'is_system' => false,
+        ]);
+
+        $permission = \App\Models\Permission::create([
+            'name' => 'recruitment.scout',
+            'display_name' => 'Scout Candidates',
+            'module' => 'recruitment',
+        ]);
+
+        $role->permissions()->attach($permission->id);
+
+        $user = User::factory()->create([
+            'name' => 'John Scout',
+            'email' => 'scout@hrms.test',
+        ]);
+
+        $user->roles()->attach($role->id);
+
+        $this->assertTrue($user->hasRole('talent_scout'));
+        $this->assertTrue($user->hasRole('Talent Scout'));
+        $this->assertTrue($user->hasPermission('recruitment.scout'));
+        $this->assertFalse($user->hasPermission('payroll.view'));
+        $this->assertEquals('Talent Scout', $user->role);
     }
 }
